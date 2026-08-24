@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">
+  <rect width="32" height="32" rx="8" fill="#FFD000"/>
+  <!-- Gadú crest: chunky purple teardrop pointing up-right, two orange dots -->
+  <g transform="translate(16.2 17.2) rotate(-40)">
+    <path fill="#6C3CE0" d="M0-11.5C3.6-11.5 8.8-5.2 8.8 3.2c0 5.1-3.9 9.2-8.8 9.2S-8.8 8.3-8.8 3.2C-8.8-5.2-3.6-11.5 0-11.5z"/>
+    <circle cx="1.5" cy="-1.2" r="1.85" fill="#FF8A1F"/>
+    <circle cx="2.3" cy="5.8" r="1.45" fill="#FF8A1F"/>
+  </g>
+</svg>

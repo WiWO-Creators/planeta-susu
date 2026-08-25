@@ -24,6 +24,7 @@ export function ArtStudio() {
   const [color, setColor] = useState(COLORS[2]);
   const [size, setSize] = useState(14);
   const drawing = useRef(false);
+  const last = useRef<{ x: number; y: number } | null>(null);
   const complete = useProgress((s) => s.complete);
   const painted = useRef(false);
 
@@ -50,10 +51,22 @@ export function ArtStudio() {
     const ctx = c?.getContext("2d");
     if (!c || !ctx) return;
     const { x, y } = pos(e);
+    ctx.strokeStyle = color;
     ctx.fillStyle = color;
-    ctx.beginPath();
-    ctx.arc(x, y, size, 0, Math.PI * 2);
-    ctx.fill();
+    ctx.lineWidth = size;
+    ctx.lineCap = "round";
+    ctx.lineJoin = "round";
+    if (last.current) {
+      ctx.beginPath();
+      ctx.moveTo(last.current.x, last.current.y);
+      ctx.lineTo(x, y);
+      ctx.stroke();
+    } else {
+      ctx.beginPath();
+      ctx.arc(x, y, size / 2, 0, Math.PI * 2);
+      ctx.fill();
+    }
+    last.current = { x, y };
     if (!painted.current) {
       painted.current = true;
       complete("game:colores", 6, "taller-margarel", "margarel");
@@ -105,12 +118,14 @@ export function ArtStudio() {
           className="h-auto w-full touch-none"
           onPointerDown={(e) => {
             drawing.current = true;
+            last.current = null;
             (e.target as HTMLCanvasElement).setPointerCapture(e.pointerId);
             paint(e);
           }}
           onPointerMove={(e) => drawing.current && paint(e)}
           onPointerUp={() => {
             drawing.current = false;
+            last.current = null;
           }}
         />
       </div>

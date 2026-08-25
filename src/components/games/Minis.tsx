@@ -329,10 +329,14 @@ export function SpotGame() {
             aria-label={h.label}
             onClick={() => find(h.id)}
             className={cn(
-              "absolute size-12 -translate-x-1/2 -translate-y-1/2 rounded-full border-[3px]",
-              found.includes(h.id) ? "border-yellow bg-yellow/50" : "border-transparent bg-transparent",
+              "absolute size-16 -translate-x-1/2 -translate-y-1/2 rounded-full border-[3px]",
+              found.includes(h.id) ? "border-yellow bg-yellow/60" : "border-ink/40 bg-yellow/25",
             )}
-            style={{ left: `${h.x}%`, top: `${h.y}%` }}
+            style={{
+              left: `${h.x}%`,
+              top: `${h.y}%`,
+              animation: found.includes(h.id) ? undefined : "pulse-hit 1.4s ease-in-out infinite",
+            }}
           />
         ))}
       </Playfield>

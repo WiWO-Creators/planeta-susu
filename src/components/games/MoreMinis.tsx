@@ -1,34 +1,44 @@
-import { useMemo, useRef, useState, type PointerEvent } from "react";
+import { useEffect, useMemo, useRef, useState, type PointerEvent } from "react";
 import { characters } from "@/data/characters";
 import { cn } from "@/lib/utils";
 import { GameWin } from "./GameWin";
-import { ArcadeHud, ArcadeStart, Playfield, tone, useLoop } from "./playkit";
+import {
+  ArcadeHud,
+  ArcadeStart,
+  beep,
+  boop,
+  burst,
+  canvasPos,
+  cheer,
+  drawParticles,
+  fitCanvas,
+  stepParticles,
+  type Particle,
+} from "./playkit";
 
 export function SilhouetteGame() {
   const order = useMemo(() => [...characters].sort(() => Math.random() - 0.5), []);
   const [phase, setPhase] = useState<"start" | "play" | "win">("start");
   const [i, setI] = useState(0);
   const [score, setScore] = useState(0);
-  const [x, setX] = useState(-20);
+  const [lock, setLock] = useState(false);
   const who = order[i];
 
-  useLoop(phase === "play" && !!who, (dt) => {
-    setX((v) => {
-      const n = v + 28 * dt;
-      return n > 120 ? -20 : n;
-    });
-  });
-
   function pick(slug: string) {
-    if (!who) return;
+    if (!who || lock) return;
+    setLock(true);
     const ok = slug === who.slug;
-    tone(ok ? 780 : 160, 120, ok ? "triangle" : "sawtooth");
-    if (ok) setScore((s) => s + 1);
-    if (i + 1 >= order.length) setPhase("win");
-    else {
-      setI((n) => n + 1);
-      setX(-20);
-    }
+    if (ok) {
+      cheer();
+      setScore((s) => s + 1);
+    } else boop();
+    window.setTimeout(() => {
+      if (i + 1 >= order.length) setPhase("win");
+      else {
+        setI((n) => n + 1);
+        setLock(false);
+      }
+    }, 450);
   }
 
   if (phase === "start") {
@@ -41,7 +51,7 @@ export function SilhouetteGame() {
           setPhase("play");
           setI(0);
           setScore(0);
-          setX(-20);
+          setLock(false);
         }}
       />
     );
@@ -62,22 +72,23 @@ export function SilhouetteGame() {
   return (
     <div>
       <ArcadeHud score={score * 20} extra={<span>{i + 1}/5</span>} />
-      <Playfield className="relative mt-3 h-56 overflow-hidden rounded-card border-[3px] border-ink bg-[#163528] sm:h-64">
+      <div className="relative mt-3 h-56 overflow-hidden rounded-card border-[3px] border-ink bg-[#163528] sm:h-64">
         <div className="absolute inset-x-0 bottom-0 h-10 bg-[#0d2118]" />
         <img
+          key={who.slug}
           src={who.portrait}
           alt=""
           className="absolute bottom-6 h-36 w-auto object-contain brightness-0 sm:h-44"
-          style={{ left: `${x}%`, transform: "translateX(-50%)" }}
+          style={{ animation: "walk-across 4s linear infinite" }}
         />
-      </Playfield>
+      </div>
       <div className="mt-3 grid grid-cols-5 gap-2">
         {characters.map((c) => (
           <button
             key={c.slug}
             type="button"
             onClick={() => pick(c.slug)}
-            className="flex flex-col items-center rounded-2xl border-[3px] border-ink bg-cream p-1 active:translate-y-1"
+            className="flex min-h-16 flex-col items-center rounded-2xl border-[3px] border-ink bg-cream p-1 active:translate-y-1"
           >
             <img src={c.portrait} alt={c.name} className="h-14 w-auto object-contain" />
           </button>
@@ -88,37 +99,26 @@ export function SilhouetteGame() {
 }
 
 const STAGES = [
-  { id: "mar", label: "mar", y: 78, color: "#5579df" },
-  { id: "sol", label: "sol", y: 18, color: "#ffd000" },
-  { id: "nube", label: "nube", y: 22, color: "#fff6d8" },
-  { id: "lluvia", label: "lluvia", y: 48, color: "#5fade9" },
+  { id: "mar", label: "mar", color: "#5579df" },
+  { id: "sol", label: "sol", color: "#ffd000" },
+  { id: "nube", label: "nube", color: "#fff6d8" },
+  { id: "lluvia", label: "lluvia", color: "#5fade9" },
 ];
 
 export function CycleGame() {
   const [phase, setPhase] = useState<"start" | "play" | "win">("start");
   const [step, setStep] = useState(0);
-  const drop = useRef({ x: 50, y: 78 });
-  const [, tick] = useState(0);
 
-  useLoop(phase === "play", () => {
-    tick((n) => n + 1);
-  });
-
-  function move(e: PointerEvent<HTMLDivElement>) {
-    if (phase !== "play") return;
-    const r = e.currentTarget.getBoundingClientRect();
-    drop.current = {
-      x: ((e.clientX - r.left) / r.width) * 100,
-      y: ((e.clientY - r.top) / r.height) * 100,
-    };
-    const s = STAGES[step]!;
-    const dy = Math.abs(drop.current.y - s.y);
-    const dx = Math.abs(drop.current.x - (20 + step * 20));
-    if (dy < 12 && dx < 16) {
-      tone(500 + step * 80, 100);
-      if (step + 1 >= STAGES.length) setPhase("win");
-      else setStep((n) => n + 1);
+  function tap(i: number) {
+    if (i !== step) {
+      boop();
+      return;
     }
+    beep(500 + step * 90, 100);
+    if (step + 1 >= STAGES.length) {
+      cheer();
+      setPhase("win");
+    } else setStep((n) => n + 1);
   }
 
   if (phase === "start") {
@@ -126,64 +126,44 @@ export function CycleGame() {
       <ArcadeStart
         who="zizu"
         title="Viaje de una gota"
-        how="Arrastrá la gota: mar, sol, nube, lluvia."
+        how="Tocá el camino: mar, sol, nube, lluvia."
         onStart={() => {
           setPhase("play");
           setStep(0);
-          drop.current = { x: 50, y: 78 };
         }}
       />
     );
   }
   if (phase === "win") {
     return (
-      <GameWin
-        who="zizu"
-        score={4}
-        total={4}
-        id="game:ciclo"
-        badge="ciclo-agua"
-        kids="El agua no se esfuma: viaja."
-      />
+      <GameWin who="zizu" score={4} total={4} id="game:ciclo" badge="ciclo-agua" kids="El agua no se esfuma: viaja." />
     );
   }
 
   return (
     <div>
-      <ArcadeHud score={step * 25} extra={<span>{STAGES[step]?.label}</span>} />
-      <Playfield className="relative mt-3 h-[26rem] touch-none overflow-hidden rounded-card border-[3px] border-ink bg-sky sm:h-[30rem]">
-        <div className="absolute inset-x-0 bottom-0 h-[28%] bg-vector" />
-        <div className="absolute right-6 top-4 size-16 rounded-full border-[3px] border-ink bg-yellow" />
-        <div className="absolute left-8 top-8 h-14 w-28 rounded-full border-[3px] border-ink bg-cloud" />
-        {STAGES.map((s, i) => (
-          <span
-            key={s.id}
-            className={cn(
-              "absolute rounded-full border-[3px] border-ink font-display text-xs font-semibold",
-              i === step ? "scale-110" : "opacity-60",
-            )}
-            style={{
-              left: `${20 + i * 20}%`,
-              top: `${s.y}%`,
-              background: s.color,
-              padding: "4px 8px",
-              transform: "translate(-50%, -50%)",
-            }}
-          >
-            {s.label}
-          </span>
-        ))}
-        <div
-          className="absolute inset-0"
-          onPointerMove={move}
-          onPointerDown={move}
-        >
-          <span
-            className="absolute size-10 -translate-x-1/2 -translate-y-1/2 rounded-b-full rounded-t-[40%] border-[3px] border-ink bg-sky"
-            style={{ left: `${drop.current.x}%`, top: `${drop.current.y}%` }}
-          />
+      <ArcadeHud score={step * 25} extra={<span>Ahora: {STAGES[step]?.label}</span>} />
+      <div className="relative mt-3 min-h-[22rem] overflow-hidden rounded-card border-[3px] border-ink bg-sky">
+        <div className="absolute inset-x-0 bottom-0 h-[30%] bg-vector" />
+        <div className="absolute right-8 top-6 size-16 rounded-full border-[3px] border-ink bg-yellow" />
+        <div className="absolute left-10 top-10 h-14 w-28 rounded-full border-[3px] border-ink bg-cloud" />
+        <div className="relative grid h-full grid-cols-2 gap-4 p-6 sm:grid-cols-4">
+          {STAGES.map((s, i) => (
+            <button
+              key={s.id}
+              type="button"
+              onClick={() => tap(i)}
+              className={cn(
+                "mt-auto min-h-24 rounded-card border-[3px] border-ink font-display text-xl font-semibold shadow-chunky active:translate-y-1",
+                i === step ? "scale-105" : "opacity-70",
+              )}
+              style={{ background: s.color }}
+            >
+              {i + 1}. {s.label}
+            </button>
+          ))}
         </div>
-      </Playfield>
+      </div>
     </div>
   );
 }
@@ -203,15 +183,25 @@ export function RhymeGame() {
   const [phase, setPhase] = useState<"start" | "play" | "win">("start");
   const [i, setI] = useState(0);
   const [score, setScore] = useState(0);
+  const [flash, setFlash] = useState<"ok" | "no" | null>(null);
   const p = PAIRS[i];
 
   function choose(yes: boolean) {
-    if (!p) return;
+    if (!p || flash) return;
     const ok = yes === p.ok;
-    tone(ok ? 820 : 160, 120, ok ? "triangle" : "sawtooth");
-    if (ok) setScore((s) => s + 1);
-    if (i + 1 >= PAIRS.length) setPhase("win");
-    else setI((n) => n + 1);
+    if (ok) {
+      cheer();
+      setScore((s) => s + 1);
+      setFlash("ok");
+    } else {
+      boop();
+      setFlash("no");
+    }
+    window.setTimeout(() => {
+      setFlash(null);
+      if (i + 1 >= PAIRS.length) setPhase("win");
+      else setI((n) => n + 1);
+    }, 420);
   }
 
   if (phase === "start") {
@@ -219,7 +209,7 @@ export function RhymeGame() {
       <ArcadeStart
         who="margarel"
         title="¿Riman?"
-        how="Dos palabras vuelan. Tocá SÍ o NO."
+        how="Dos palabras. Tocá SÍ o NO."
         onStart={() => {
           setPhase("play");
           setI(0);
@@ -244,7 +234,12 @@ export function RhymeGame() {
   return (
     <div>
       <ArcadeHud score={score * 10} extra={<span>{i + 1}/{PAIRS.length}</span>} />
-      <Playfield className="relative mt-3 flex h-64 items-center justify-center gap-6 overflow-hidden rounded-card border-[3px] border-ink bg-mint sm:h-72">
+      <div
+        className={cn(
+          "relative mt-3 flex h-64 items-center justify-center gap-4 overflow-hidden rounded-card border-[3px] border-ink sm:h-72",
+          flash === "ok" ? "bg-zizu" : flash === "no" ? "bg-coral" : "bg-mint",
+        )}
+      >
         <img src="/characters/margarel.webp" alt="" className="absolute bottom-0 right-2 h-24" />
         <span className="bob rounded-2xl border-[3px] border-ink bg-yellow px-5 py-3 font-display text-3xl font-semibold">
           {p.a}
@@ -252,19 +247,19 @@ export function RhymeGame() {
         <span className="bob-d2 rounded-2xl border-[3px] border-ink bg-cloud px-5 py-3 font-display text-3xl font-semibold">
           {p.b}
         </span>
-      </Playfield>
+      </div>
       <div className="mt-3 grid grid-cols-2 gap-3">
         <button
           type="button"
           onClick={() => choose(true)}
-          className="min-h-16 rounded-card border-[3px] border-ink bg-zizu font-display text-2xl font-semibold shadow-chunky"
+          className="min-h-16 rounded-card border-[3px] border-ink bg-zizu font-display text-2xl font-semibold shadow-chunky active:translate-y-1"
         >
           ¡Sí riman!
         </button>
         <button
           type="button"
           onClick={() => choose(false)}
-          className="min-h-16 rounded-card border-[3px] border-ink bg-coral font-display text-2xl font-semibold text-cream shadow-chunky"
+          className="min-h-16 rounded-card border-[3px] border-ink bg-coral font-display text-2xl font-semibold text-cream shadow-chunky active:translate-y-1"
         >
           No
         </button>
@@ -273,53 +268,136 @@ export function RhymeGame() {
   );
 }
 
-type Balloon = { id: number; x: number; y: number; vy: number; hue: string };
+type Balloon = { id: number; x: number; y: number; vy: number; r: number; color: string; pop: number };
 let bid = 1;
 
+type CountWorld = {
+  w: number;
+  h: number;
+  balls: Balloon[];
+  spawn: number;
+  need: number;
+  got: number;
+  wave: number;
+  score: number;
+  ps: Particle[];
+  over: boolean;
+};
+
 export function CountGame() {
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+  const world = useRef<CountWorld | null>(null);
   const [phase, setPhase] = useState<"start" | "play" | "win">("start");
-  const [need, setNeed] = useState(4);
-  const [got, setGot] = useState(0);
-  const [wave, setWave] = useState(1);
-  const [score, setScore] = useState(0);
-  const [balls, setBalls] = useState<Balloon[]>([]);
-  const spawn = useRef(0);
+  const [hud, setHud] = useState({ score: 0, got: 0, need: 4, wave: 1 });
+  const hudRef = useRef(hud);
 
-  useLoop(phase === "play", (dt) => {
-    spawn.current += dt;
-    if (spawn.current > 0.7) {
-      spawn.current = 0;
-      setBalls((b) => [
-        ...b,
-        {
-          id: bid++,
-          x: 10 + Math.random() * 80,
-          y: 110,
-          vy: 28 + wave * 4,
-          hue: ["#ff5d8f", "#ffd000", "#5579df", "#2ebe7a", "#6c3ce0"][Math.floor(Math.random() * 5)]!,
-        },
-      ]);
-    }
-    setBalls((b) => b.map((x) => ({ ...x, y: x.y - x.vy * dt })).filter((x) => x.y > -10));
-  });
-
-  function pop(id: number) {
-    tone(620 + got * 40, 80);
-    setBalls((b) => b.filter((x) => x.id !== id));
-    setGot((g) => {
-      const n = g + 1;
-      if (n >= need) {
-        setScore((s) => s + need * 10);
-        if (wave >= 5) {
-          setPhase("win");
-          return n;
-        }
-        setWave((w) => w + 1);
-        setNeed((k) => k + 1);
-        return 0;
+  useEffect(() => {
+    if (phase !== "play") return;
+    const c = canvasRef.current;
+    if (!c) return;
+    const boot = fitCanvas(c);
+    world.current = {
+      w: boot.w,
+      h: boot.h,
+      balls: [],
+      spawn: 0.95,
+      need: 4,
+      got: 0,
+      wave: 1,
+      score: 0,
+      ps: [],
+      over: false,
+    };
+    hudRef.current = { score: 0, got: 0, need: 4, wave: 1 };
+    setHud(hudRef.current);
+    let last = performance.now();
+    let raf = 0;
+    const loop = (t: number) => {
+      const dt = Math.min(0.05, (t - last) / 1000);
+      last = t;
+      const g = world.current;
+      if (!g) return;
+      const sized = fitCanvas(c);
+      if (!sized.ctx) {
+        raf = requestAnimationFrame(loop);
+        return;
       }
-      return n;
-    });
+      g.w = sized.w;
+      g.h = sized.h;
+      g.spawn += dt;
+      if (g.spawn > Math.max(0.45, 0.9 - g.wave * 0.08)) {
+        g.spawn = 0;
+        const r = 26 + Math.random() * 10;
+        g.balls.push({
+          id: bid++,
+          x: r + 16 + Math.random() * (g.w - r * 2 - 32),
+          y: g.h + r,
+          vy: 70 + g.wave * 18,
+          r,
+          color: ["#ff5d8f", "#ffd000", "#5579df", "#2ebe7a", "#6c3ce0"][Math.floor(Math.random() * 5)]!,
+          pop: 0,
+        });
+      }
+      stepParticles(g.ps, dt);
+      for (let i = g.balls.length - 1; i >= 0; i--) {
+        const b = g.balls[i]!;
+        if (b.pop) {
+          b.pop += dt * 5;
+          b.r *= 1 - dt * 10;
+          if (b.pop > 1) g.balls.splice(i, 1);
+          continue;
+        }
+        b.y -= b.vy * dt;
+        if (b.y < -40) g.balls.splice(i, 1);
+      }
+      paintCount(sized.ctx, g);
+      const nh = { score: g.score, got: g.got, need: g.need, wave: g.wave };
+      if (nh.got !== hudRef.current.got || nh.wave !== hudRef.current.wave || nh.score !== hudRef.current.score) {
+        hudRef.current = nh;
+        setHud(nh);
+      }
+      if (g.over) {
+        setPhase("win");
+        return;
+      }
+      raf = requestAnimationFrame(loop);
+    };
+    raf = requestAnimationFrame(loop);
+    return () => cancelAnimationFrame(raf);
+  }, [phase]);
+
+  function tap(e: PointerEvent<HTMLCanvasElement>) {
+    const g = world.current;
+    const c = canvasRef.current;
+    if (!g || !c) return;
+    const { x, y } = canvasPos(e, c);
+    let hit: Balloon | undefined;
+    let best = 1e9;
+    for (const b of g.balls) {
+      if (b.pop) continue;
+      const d = (b.x - x) ** 2 + (b.y - y) ** 2;
+      if (d < (b.r + 8) ** 2 && d < best) {
+        best = d;
+        hit = b;
+      }
+    }
+    if (!hit) return;
+    hit.pop = 0.01;
+    beep(560 + g.got * 40, 80);
+    burst(g.ps, hit.x, hit.y, hit.color, 12);
+    g.got += 1;
+    g.score += 10;
+    if (g.got >= g.need) {
+      cheer();
+      if (g.wave >= 5) {
+        g.over = true;
+        return;
+      }
+      g.wave += 1;
+      g.need = 3 + g.wave;
+      g.got = 0;
+      g.balls = [];
+    }
   }
 
   if (phase === "start") {
@@ -328,14 +406,7 @@ export function CountGame() {
         who="vector"
         title="Revienta globos"
         how="Tocá globos hasta llegar al número."
-        onStart={() => {
-          setPhase("play");
-          setNeed(4);
-          setGot(0);
-          setWave(1);
-          setScore(0);
-          setBalls([]);
-        }}
+        onStart={() => setPhase("play")}
       />
     );
   }
@@ -343,7 +414,7 @@ export function CountGame() {
     return (
       <GameWin
         who="vector"
-        score={score}
+        score={hud.score}
         total={5}
         id="game:contar"
         badge="globos-vector"
@@ -354,24 +425,43 @@ export function CountGame() {
 
   return (
     <div>
-      <ArcadeHud score={score} extra={<span>{got}/{need}</span>} />
-      <Playfield className="relative mt-3 h-[28rem] touch-none overflow-hidden rounded-card border-[3px] border-ink bg-sky sm:h-[32rem]">
-        <p className="pointer-events-none absolute left-1/2 top-3 -translate-x-1/2 rounded-full border-[3px] border-ink bg-yellow px-4 py-1 font-display text-2xl font-semibold">
-          {need}
-        </p>
-        {balls.map((b) => (
-          <button
-            key={b.id}
-            type="button"
-            aria-label="globo"
-            onClick={() => pop(b.id)}
-            className="absolute size-14 -translate-x-1/2 rounded-full border-[3px] border-ink shadow-chunky-sm active:scale-90 sm:size-16"
-            style={{ left: `${b.x}%`, top: `${b.y}%`, background: b.hue }}
-          />
-        ))}
-      </Playfield>
+      <ArcadeHud score={hud.score} extra={<span>{hud.got}/{hud.need}</span>} />
+      <canvas
+        ref={canvasRef}
+        className="mt-3 h-[28rem] w-full touch-none rounded-card border-[3px] border-ink bg-sky sm:h-[32rem]"
+        onPointerDown={tap}
+      />
     </div>
   );
+}
+
+function paintCount(ctx: CanvasRenderingContext2D, g: CountWorld) {
+  const sky = ctx.createLinearGradient(0, 0, 0, g.h);
+  sky.addColorStop(0, "#7ec8ea");
+  sky.addColorStop(1, "#d8f0ff");
+  ctx.fillStyle = sky;
+  ctx.fillRect(0, 0, g.w, g.h);
+  for (const b of g.balls) {
+    ctx.fillStyle = "#1f1408";
+    ctx.beginPath();
+    ctx.arc(b.x, b.y, b.r + 3, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.fillStyle = b.color;
+    ctx.beginPath();
+    ctx.arc(b.x, b.y, b.r, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.strokeStyle = "#1f1408";
+    ctx.lineWidth = 3;
+    ctx.beginPath();
+    ctx.moveTo(b.x, b.y + b.r);
+    ctx.lineTo(b.x, b.y + b.r + 18);
+    ctx.stroke();
+  }
+  drawParticles(ctx, g.ps);
+  ctx.font = "700 28px Fredoka, Nunito, sans-serif";
+  ctx.textAlign = "center";
+  ctx.fillStyle = "#1f1408";
+  ctx.fillText(String(g.need), g.w / 2, 40);
 }
 
 const ING = [
@@ -385,19 +475,19 @@ export function RecipeGame() {
   const [phase, setPhase] = useState<"start" | "play" | "win">("start");
   const [order] = useState(() => [...ING].sort(() => Math.random() - 0.5));
   const [placed, setPlaced] = useState<string[]>([]);
-  const drag = useRef<string | null>(null);
 
-  function drop() {
-    const id = drag.current;
-    drag.current = null;
-    if (!id) return;
+  function tap(id: string) {
     const next = order[placed.length];
-    if (next && next.id === id) {
-      tone(700, 90);
+    if (!next) return;
+    if (next.id === id) {
+      beep(640, 90);
       const n = [...placed, id];
       setPlaced(n);
-      if (n.length === order.length) setPhase("win");
-    } else tone(160, 140, "sawtooth");
+      if (n.length === order.length) {
+        cheer();
+        setPhase("win");
+      }
+    } else boop();
   }
 
   if (phase === "start") {
@@ -405,7 +495,7 @@ export function RecipeGame() {
       <ArcadeStart
         who="gadu"
         title="Receta de pasos"
-        how="El orden importa. Arrastrá al plato en la receta."
+        how="El orden importa. Tocá el ingrediente que pide la receta."
         onStart={() => {
           setPhase("play");
           setPlaced([]);
@@ -429,41 +519,30 @@ export function RecipeGame() {
   return (
     <div>
       <ArcadeHud score={placed.length * 20} extra={<span>Paso {placed.length + 1}</span>} />
-      <p className="mt-2 font-display text-lg font-semibold">
+      <p className="mt-3 text-center font-display text-2xl font-semibold">
         Ahora: {order[placed.length]?.label}
       </p>
-      <div className="mt-3 grid gap-3 sm:grid-cols-[1fr_180px]">
-        <div
-          onPointerUp={drop}
-          className="flex min-h-48 flex-col items-center justify-end rounded-card border-[3px] border-ink bg-cream p-4"
-        >
-          {placed.map((id) => {
-            const it = ING.find((x) => x.id === id)!;
-            return (
-              <div
-                key={id}
-                className="h-8 w-40 rounded-md border-2 border-ink"
-                style={{ background: it.color }}
-              />
-            );
-          })}
-          <p className="mt-2 font-display text-sm">plato</p>
-        </div>
-        <div className="grid grid-cols-2 gap-2 sm:grid-cols-1">
-          {ING.filter((x) => !placed.includes(x.id)).map((it) => (
-            <button
-              key={it.id}
-              type="button"
-              onPointerDown={() => {
-                drag.current = it.id;
-              }}
-              className="min-h-14 rounded-2xl border-[3px] border-ink font-display font-semibold shadow-chunky-sm"
-              style={{ background: it.color }}
-            >
-              {it.label}
-            </button>
-          ))}
-        </div>
+      <div className="mt-3 flex min-h-40 flex-col items-center justify-end rounded-card border-[3px] border-ink bg-cream p-4">
+        {placed.map((id) => {
+          const it = ING.find((x) => x.id === id)!;
+          return (
+            <div key={id} className="h-9 w-48 rounded-md border-[3px] border-ink" style={{ background: it.color }} />
+          );
+        })}
+        <p className="mt-2 font-display text-sm">plato</p>
+      </div>
+      <div className="mt-3 grid grid-cols-2 gap-2">
+        {ING.filter((x) => !placed.includes(x.id)).map((it) => (
+          <button
+            key={it.id}
+            type="button"
+            onClick={() => tap(it.id)}
+            className="min-h-16 rounded-2xl border-[3px] border-ink font-display text-xl font-semibold shadow-chunky active:translate-y-1"
+            style={{ background: it.color }}
+          >
+            {it.label}
+          </button>
+        ))}
       </div>
     </div>
   );

@@ -8,7 +8,7 @@ export const Route = createFileRoute("/explora/")({ component: Explora });
 function Explora() {
   return (
     <main>
-      <PageHero title="¿Con quién?" scene="/scenes/bosque-red.jpg" who="zizu" kicker="Elige un rincón" />
+      <PageHero title="¿Con quién?" who="zizu" kicker="Elige un rincón" />
       <div className="mx-auto max-w-6xl px-4 py-8 sm:px-6">
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {territories.map((t) => {

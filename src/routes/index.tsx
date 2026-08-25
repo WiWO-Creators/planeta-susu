@@ -2,10 +2,8 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { Figure } from "@/components/characters/Figure";
 import { Photo } from "@/components/ui/photo";
 import { buttonVariants } from "@/components/ui/button";
-import { characters } from "@/data/characters";
+import { characters, characterMap, type CharacterSlug } from "@/data/characters";
 import { territories } from "@/data/territories";
-import { games } from "@/data/games";
-import { storyCover } from "@/data/stories";
 import { cn } from "@/lib/utils";
 import { Radar } from "@/components/play/Radar";
 import { SkyToys } from "@/components/play/Magic";
@@ -56,10 +54,10 @@ function Home() {
 
       <section className="border-b-[3px] border-ink bg-cloud">
         <div className="mx-auto grid max-w-5xl gap-4 px-4 py-8 sm:grid-cols-2 sm:px-6">
-          <Door to="/juegos" img={games[0]?.cover ?? "/scenes/fiesta-estrellas.jpg"} title="Jugar" color="bg-yellow" />
-          <Door to="/aventuras" img={storyCover["arboles-secretos"]} title="Cuentos" color="bg-margarel text-cream" />
-          <Door to="/explora" img="/scenes/bosque-red.jpg" title="Explorar" color="bg-zizu text-cream" />
-          <Door to="/padres" img="/scenes/sala-grandes.jpg" title="Grandes" color="bg-ink text-cream" />
+          <Door to="/juegos" who="gadu" title="Jugar" color="bg-yellow" />
+          <Door to="/aventuras" who="margarel" title="Cuentos" color="bg-margarel text-cream" />
+          <Door to="/explora" who="zizu" title="Explorar" color="bg-zizu text-cream" />
+          <Door to="/padres" who="susu" title="Grandes" color="bg-ink text-cream" />
         </div>
       </section>
 
@@ -110,15 +108,16 @@ function Home() {
 
 function Door({
   to,
-  img,
+  who,
   title,
   color,
 }: {
   to: "/juegos" | "/aventuras" | "/explora" | "/padres";
-  img: string;
+  who: CharacterSlug;
   title: string;
   color: string;
 }) {
+  const c = characterMap[who];
   return (
     <Link
       to={to}
@@ -127,7 +126,16 @@ function Door({
         color,
       )}
     >
-      <Photo src={img} ratio="card" />
+      <div
+        className="flex aspect-[4/3] items-end justify-center px-3 pt-4"
+        style={{ background: `${c.color}33` }}
+      >
+        <img
+          src={c.portrait}
+          alt=""
+          className="h-[92%] w-auto object-contain object-bottom"
+        />
+      </div>
       <p className="p-4 text-center font-display text-3xl font-semibold">{title}</p>
     </Link>
   );

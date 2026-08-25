@@ -8,17 +8,22 @@ export function PageHero({
   kicker,
 }: {
   title: string;
-  scene: string;
+  scene?: string;
   who?: CharacterSlug;
   kicker?: string;
 }) {
   const host = who ? characterMap[who] : null;
   return (
-    <section className="relative overflow-hidden border-b-[3px] border-ink">
-      <div className="absolute inset-0">
-        <img src={scene} alt="" className="h-full w-full object-cover object-center" />
-        <div className="absolute inset-0 bg-gradient-to-t from-cream via-cream/75 to-transparent" />
-      </div>
+    <section
+      className="relative overflow-hidden border-b-[3px] border-ink"
+      style={!scene && host ? { background: `${host.color}44` } : undefined}
+    >
+      {scene ? (
+        <div className="absolute inset-0">
+          <img src={scene} alt="" className="h-full w-full object-cover object-center" />
+          <div className="absolute inset-0 bg-gradient-to-t from-cream via-cream/75 to-transparent" />
+        </div>
+      ) : null}
       <div className="relative mx-auto flex max-w-6xl items-end gap-3 px-4 pb-5 pt-12 sm:gap-5 sm:px-6 sm:pt-14">
         {host ? (
           <img src={host.portrait} alt="" className="h-24 w-auto bob object-contain sm:h-36" />

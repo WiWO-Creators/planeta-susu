@@ -1,4 +1,5 @@
 import { createFileRoute, Link, notFound } from "@tanstack/react-router";
+import { Photo } from "@/components/ui/photo";
 import { characters, getCharacter } from "@/data/characters";
 import { territories } from "@/data/territories";
 import { Speech } from "@/components/characters/Figure";
@@ -37,7 +38,7 @@ function CharacterPage() {
             params={{ tema: home.topic }}
             className="block overflow-hidden rounded-card border-[3px] border-ink shadow-chunky-sm"
           >
-            <img src={c.scene} alt="" className="h-36 w-full object-cover" />
+            <Photo src={c.scene} ratio="card" />
             <p className="p-4 font-display text-2xl font-semibold">Ir al {home.title} →</p>
           </Link>
         ) : null}

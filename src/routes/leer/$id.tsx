@@ -1,4 +1,5 @@
 import { createFileRoute, Link, notFound } from "@tanstack/react-router";
+import { Photo } from "@/components/ui/photo";
 import { getReading, KIND_LABEL } from "@/data/readings";
 import { characterMap } from "@/data/characters";
 import { Speech } from "@/components/characters/Figure";
@@ -22,7 +23,7 @@ function ReadingPage() {
         ← Biblioteca del patio
       </Link>
       <div className="mt-5 overflow-hidden rounded-blob border-[3px] border-ink shadow-chunky">
-        <img src={reading.cover} alt="" className="h-52 w-full object-cover sm:h-64" />
+        <Photo src={reading.cover} alt="" ratio="wide" />
       </div>
       <p className="mt-6 font-display text-sm font-semibold uppercase tracking-widest text-ink-soft">
         {KIND_LABEL[reading.kind]} · {reading.minutes} min · con {host.name}

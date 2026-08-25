@@ -1,4 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
+import { Photo } from "@/components/ui/photo";
 import { Flame, Sparkles } from "lucide-react";
 import { RankBar } from "@/components/progress/RankBar";
 import { Hearts } from "@/components/progress/Hearts";
@@ -37,7 +38,7 @@ function Album() {
       </p>
 
       <div className="mt-8 overflow-hidden rounded-blob border-[3px] border-ink shadow-chunky">
-        <img src="/scenes/fiesta-estrellas.jpg" alt="El elenco celebra con estrellas" className="h-44 w-full object-cover sm:h-56" />
+        <Photo src="/scenes/fiesta-estrellas.jpg" alt="El elenco celebra con estrellas" ratio="wide" />
       </div>
 
       <div className="mt-8 grid gap-4 sm:grid-cols-2">

@@ -1,5 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { Figure } from "@/components/characters/Figure";
+import { Photo } from "@/components/ui/photo";
 import { buttonVariants } from "@/components/ui/button";
 import { characters } from "@/data/characters";
 import { territories } from "@/data/territories";
@@ -15,15 +16,15 @@ const delays = [0, 1, 2, 3, 4] as const;
 function Home() {
   return (
     <main>
-      <section className="relative border-b-[3px] border-ink bg-yellow">
-        <div className="pointer-events-none absolute inset-0 overflow-hidden doodle-dots opacity-30" />
-        <div className="relative mx-auto max-w-5xl px-4 pb-4 pt-8 text-center sm:px-6 sm:pt-10">
+      <section className="relative overflow-hidden border-b-[3px] border-ink bg-yellow">
+        <div className="pointer-events-none absolute inset-0 doodle-dots opacity-25" />
+        <div className="relative mx-auto max-w-5xl px-4 pb-6 pt-8 text-center sm:px-6 sm:pt-10">
           <img
             src="/brand/logo-ink.png"
             alt="Planeta Susu"
-            className="pop-in mx-auto w-full max-w-[14rem] sm:max-w-xs"
+            className="pop-in mx-auto w-full max-w-[12rem] sm:max-w-[16rem]"
           />
-          <h1 className="mt-3 font-display text-3xl font-semibold sm:text-5xl">¿Jugamos?</h1>
+          <h1 className="mt-3 font-display text-4xl font-semibold sm:text-6xl">¿Jugamos?</h1>
           <div className="mt-6 flex flex-wrap justify-center gap-3">
             <Link to="/juegos" className={buttonVariants({ tone: "ink", size: "lg" })}>
               Jugar
@@ -35,17 +36,15 @@ function Home() {
               Radar
             </Link>
           </div>
-          <img
-            src="/scenes/nave-interior.jpg"
-            alt="La tripulación lista para despegar"
-            className="mt-8 w-full rounded-blob border-[3px] border-ink object-cover shadow-chunky sm:h-80"
-          />
+          <div className="relative mt-8 overflow-hidden rounded-blob border-[3px] border-ink shadow-chunky">
+            <Photo src="/characters/group-fun.webp" alt="La tripulación lista para despegar" ratio="wide" />
+          </div>
         </div>
         <div className="relative border-t-[3px] border-ink bg-cream">
-          <div className="mx-auto flex max-w-5xl snap-x gap-2 overflow-x-auto px-4 py-3 sm:grid sm:grid-cols-5 sm:overflow-visible sm:px-6">
+          <div className="mx-auto flex max-w-5xl snap-x gap-3 overflow-x-auto px-4 py-4 sm:grid sm:grid-cols-5 sm:overflow-visible sm:px-6">
             {characters.map((c, i) => (
-              <div key={c.slug} className="w-24 shrink-0 snap-center sm:w-auto">
-                <Figure slug={c.slug} delay={delays[i]} height="h-20 sm:h-24" label />
+              <div key={c.slug} className="w-28 shrink-0 snap-center sm:w-auto">
+                <Figure slug={c.slug} delay={delays[i]} height="h-24 sm:h-32" label />
               </div>
             ))}
           </div>
@@ -63,7 +62,7 @@ function Home() {
 
       <section className="border-b-[3px] border-ink bg-gadu text-cream">
         <div className="mx-auto max-w-5xl px-4 py-10 sm:px-6">
-          <h2 className="text-center font-display text-3xl font-semibold">Toca el radar</h2>
+          <h2 className="text-center font-display text-3xl font-semibold sm:text-4xl">Toca el radar</h2>
           <div className="mt-6">
             <Radar />
           </div>
@@ -72,7 +71,7 @@ function Home() {
 
       <section className="border-b-[3px] border-ink bg-cream">
         <div className="mx-auto max-w-5xl px-4 py-10 sm:px-6">
-          <h2 className="font-display text-3xl font-semibold">Con un amigo</h2>
+          <h2 className="font-display text-3xl font-semibold sm:text-4xl">Con un amigo</h2>
           <div className="mt-5 grid grid-cols-2 gap-3 sm:grid-cols-5">
             {territories.map((t) => {
               const host = characters.find((c) => c.slug === t.host)!;
@@ -83,8 +82,8 @@ function Home() {
                   params={{ tema: t.topic }}
                   className="lift overflow-hidden rounded-card border-[3px] border-ink bg-cloud shadow-chunky-sm"
                 >
-                  <div className="relative h-28 sm:h-36">
-                    <img src={t.cover} alt="" className="h-full w-full object-cover" />
+                  <div className="relative">
+                    <Photo src={t.cover} ratio="square" />
                     <img
                       src={host.portrait}
                       alt=""
@@ -123,7 +122,7 @@ function Door({
         color,
       )}
     >
-      <img src={img} alt="" className="h-36 w-full object-cover sm:h-44" />
+      <Photo src={img} ratio="card" />
       <p className="p-4 text-center font-display text-3xl font-semibold">{title}</p>
     </Link>
   );

@@ -2,6 +2,7 @@ import { useEffect, useRef, useState, type PointerEvent } from "react";
 import {
   ArcadeHud,
   ArcadeStart,
+  Stage,
   beep,
   burst,
   canvasPos,
@@ -190,11 +191,13 @@ export function MathGame() {
   return (
     <div>
       <ArcadeHud score={hud.score} extra={<span>Ronda {hud.wave}/{WAVES}</span>} />
-      <canvas
-        ref={canvasRef}
-        className="mt-3 h-[28rem] w-full touch-none rounded-card border-[3px] border-ink bg-[#140c2e] sm:h-[32rem]"
-        onPointerDown={tap}
-      />
+      <Stage bg="/scenes/planeta-espacio.jpg">
+        <canvas
+          ref={canvasRef}
+          className="h-[28rem] w-full touch-none bg-transparent sm:h-[32rem]"
+          onPointerDown={tap}
+        />
+      </Stage>
     </div>
   );
 }
@@ -231,14 +234,7 @@ function step(g: World, dt: number) {
 }
 
 function paint(ctx: CanvasRenderingContext2D, g: World) {
-  const bg = g.sprites["/scenes/planeta-espacio.jpg"];
-  if (bg && bg.complete) ctx.drawImage(bg, 0, 0, g.w, g.h);
-  else {
-    ctx.fillStyle = "#140c2e";
-    ctx.fillRect(0, 0, g.w, g.h);
-  }
-  ctx.fillStyle = "rgba(20,12,46,0.25)";
-  ctx.fillRect(0, 0, g.w, g.h);
+  ctx.clearRect(0, 0, g.w, g.h);
   for (const p of g.planets) {
     blit(ctx, g.sprites[p.src], p.x, p.y, p.r * 2.4);
   }

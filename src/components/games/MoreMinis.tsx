@@ -6,6 +6,7 @@ import { GameWin } from "./GameWin";
 import {
   ArcadeHud,
   ArcadeStart,
+  Stage,
   beep,
   boop,
   burst,
@@ -146,8 +147,7 @@ export function CycleGame() {
   return (
     <div>
       <ArcadeHud score={step * 25} extra={<span>Ahora: {STAGES[step]?.label}</span>} />
-      <div className="relative mt-3 min-h-[22rem] overflow-hidden rounded-card border-[3px] border-ink">
-        <img src="/scenes/ciclo-agua.jpg" alt="" className="absolute inset-0 h-full w-full object-cover" />
+      <div className="relative mt-3 min-h-[22rem] overflow-hidden rounded-card border-[3px] border-ink bg-cover bg-center" style={{ backgroundImage: "url(/scenes/ciclo-agua.jpg)" }}>
         <div className="relative grid h-full grid-cols-2 gap-4 p-5 sm:grid-cols-4">
           {STAGES.map((s, i) => (
             <button
@@ -440,24 +440,19 @@ export function CountGame() {
   return (
     <div>
       <ArcadeHud score={hud.score} extra={<span>{hud.got}/{hud.need}</span>} />
-      <canvas
-        ref={canvasRef}
-        className="mt-3 h-[28rem] w-full touch-none rounded-card border-[3px] border-ink bg-sky sm:h-[32rem]"
-        onPointerDown={tap}
-      />
+      <Stage bg="/scenes/picnic-numeros.jpg">
+        <canvas
+          ref={canvasRef}
+          className="h-[28rem] w-full touch-none bg-transparent sm:h-[32rem]"
+          onPointerDown={tap}
+        />
+      </Stage>
     </div>
   );
 }
 
 function paintCount(ctx: CanvasRenderingContext2D, g: CountWorld) {
-  const bg = g.sprites["/scenes/picnic-numeros.jpg"];
-  if (bg && bg.complete) ctx.drawImage(bg, 0, 0, g.w, g.h);
-  else {
-    ctx.fillStyle = "#7ec8ea";
-    ctx.fillRect(0, 0, g.w, g.h);
-  }
-  ctx.fillStyle = "rgba(255,246,216,0.12)";
-  ctx.fillRect(0, 0, g.w, g.h);
+  ctx.clearRect(0, 0, g.w, g.h);
   for (const b of g.balls) {
     blit(ctx, g.sprites[b.src], b.x, b.y, b.r * 2.6);
   }
@@ -530,8 +525,7 @@ export function RecipeGame() {
       <p className="mt-3 text-center font-display text-2xl font-semibold">
         Ahora: {order[placed.length]?.label}
       </p>
-      <div className="relative mt-3 flex min-h-56 flex-col items-center justify-end overflow-hidden rounded-card border-[3px] border-ink p-4">
-        <img src="/scenes/cocina-lab.jpg" alt="" className="absolute inset-0 h-full w-full object-cover" />
+      <div className="relative mt-3 flex min-h-56 flex-col items-center justify-end overflow-hidden rounded-card border-[3px] border-ink bg-cover bg-center p-4" style={{ backgroundImage: "url(/scenes/cocina-lab.jpg)" }}>
         <img src={ART.plate} alt="" className="relative z-[1] h-36 w-36 object-contain" />
         <div className="absolute inset-x-0 bottom-10 z-[2] flex flex-col items-center">
           {placed.map((id) => {

@@ -1,4 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
+import { Photo } from "@/components/ui/photo";
 import { characterMap } from "@/data/characters";
 import { territories } from "@/data/territories";
 
@@ -18,12 +19,12 @@ function Explora() {
               params={{ tema: t.topic }}
               className="group lift overflow-hidden rounded-card border-[3px] border-ink bg-cloud shadow-chunky-sm"
             >
-              <div className="relative h-48 overflow-hidden sm:h-56">
-                <img src={t.cover} alt="" className="h-full w-full object-cover" />
+              <div className="relative">
+                <Photo src={t.cover} ratio="card" />
                 <img
                   src={host.portrait}
                   alt=""
-                  className="absolute bottom-0 right-2 h-28 w-auto object-contain object-bottom"
+                  className="absolute bottom-0 right-2 h-28 w-auto object-contain object-bottom sm:h-32"
                 />
               </div>
               <div className="p-4">

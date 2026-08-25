@@ -79,6 +79,38 @@ export function blit(
   size: number,
 ) {
   if (!img || !img.complete || !img.naturalWidth) return false;
-  ctx.drawImage(img, x - size / 2, y - size / 2, size, size);
+  const ar = img.naturalWidth / img.naturalHeight;
+  let dw = size;
+  let dh = size;
+  if (ar > 1) dh = size / ar;
+  else dw = size * ar;
+  ctx.drawImage(img, x - dw / 2, y - dh / 2, dw, dh);
   return true;
+}
+
+export function coverDraw(
+  ctx: CanvasRenderingContext2D,
+  img: HTMLImageElement | undefined,
+  w: number,
+  h: number,
+) {
+  if (!img || !img.complete || !img.naturalWidth) return;
+  const ir = img.naturalWidth / img.naturalHeight;
+  const cr = w / h;
+  let dw: number;
+  let dh: number;
+  let dx: number;
+  let dy: number;
+  if (ir > cr) {
+    dh = h;
+    dw = h * ir;
+    dx = (w - dw) / 2;
+    dy = 0;
+  } else {
+    dw = w;
+    dh = w / ir;
+    dx = 0;
+    dy = (h - dh) / 2;
+  }
+  ctx.drawImage(img, dx, dy, dw, dh);
 }

@@ -1,4 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { Photo } from "@/components/ui/photo";
 import { useState } from "react";
 import { clubQuestions } from "@/data/club";
 import { characterMap } from "@/data/characters";
@@ -32,11 +33,9 @@ function Preguntas() {
         ¿Por qué la Luna no se cae? ¿Los peces tienen sed? El Club reúne preguntas y las convierte
         en señales para la tripulación.
       </p>
-      <img
-        src="/scenes/club-preguntas.jpg"
-        alt="Susu y Vector frente a una gran pregunta"
-        className="mt-8 w-full rounded-blob border-[3px] border-ink object-cover shadow-chunky sm:h-72"
-      />
+      <div className="mt-8 overflow-hidden rounded-blob border-[3px] border-ink shadow-chunky">
+        <Photo src="/scenes/club-preguntas.jpg" alt="Susu y Vector frente a una gran pregunta" ratio="wide" />
+      </div>
 
       <form onSubmit={submit} className="mt-8 rounded-card border-[3px] border-ink bg-yellow p-5 shadow-chunky-sm">
         <label className="font-display font-semibold" htmlFor="pregunta">

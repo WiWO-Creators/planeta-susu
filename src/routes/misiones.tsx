@@ -1,4 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
+import { Photo } from "@/components/ui/photo";
 import { Flame, Sparkles } from "lucide-react";
 import { useEffect, useState } from "react";
 import { RankBar } from "@/components/progress/RankBar";
@@ -31,11 +32,9 @@ function Misiones() {
   return (
     <main className="mx-auto max-w-4xl px-4 py-8 sm:px-6">
       <h1 className="font-display text-4xl font-semibold sm:text-6xl">Misiones</h1>
-      <img
-        src="/scenes/mision-mapa.jpg"
-        alt=""
-        className="mt-6 w-full rounded-blob border-[3px] border-ink object-cover shadow-chunky sm:h-56"
-      />
+      <div className="mt-6 overflow-hidden rounded-blob border-[3px] border-ink shadow-chunky">
+        <Photo src="/scenes/mision-mapa.jpg" alt="" ratio="wide" />
+      </div>
 
       <div className="mt-8 grid gap-4 sm:grid-cols-2">
         <div className="rounded-card border-[3px] border-ink bg-yellow p-5 shadow-chunky-sm">

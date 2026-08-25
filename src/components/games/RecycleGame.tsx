@@ -2,6 +2,7 @@ import { useEffect, useRef, useState, type PointerEvent } from "react";
 import {
   ArcadeHud,
   ArcadeStart,
+  Stage,
   boop,
   burst,
   canvasPos,
@@ -222,11 +223,13 @@ export function RecycleGame() {
         lives={hud.lives}
         extra={<span>{hud.combo > 1 ? `combo x${hud.combo}` : `${GOAL} para ganar`}</span>}
       />
-      <canvas
-        ref={canvasRef}
-        className="mt-3 h-[30rem] w-full touch-none rounded-card border-[3px] border-ink bg-sky sm:h-[34rem]"
-        onPointerDown={tap}
-      />
+      <Stage bg="/scenes/zizu-rio.jpg">
+        <canvas
+          ref={canvasRef}
+          className="h-[30rem] w-full touch-none bg-transparent sm:h-[34rem]"
+          onPointerDown={tap}
+        />
+      </Stage>
     </div>
   );
 }
@@ -281,14 +284,7 @@ function paint(ctx: CanvasRenderingContext2D, g: World) {
   if (g.shake > 0) {
     ctx.translate((Math.random() - 0.5) * 12 * g.shake, (Math.random() - 0.5) * 10 * g.shake);
   }
-  const bg = sprites["/scenes/zizu-rio.jpg"];
-  if (bg && bg.complete) ctx.drawImage(bg, 0, 0, w, h);
-  else {
-    ctx.fillStyle = "#8fd6a4";
-    ctx.fillRect(0, 0, w, h);
-  }
-  ctx.fillStyle = "rgba(255,246,216,0.18)";
-  ctx.fillRect(0, 0, w, h);
+  ctx.clearRect(0, 0, w, h);
 
   const binH = Math.max(130, h * 0.28);
   const bw = w / 3;

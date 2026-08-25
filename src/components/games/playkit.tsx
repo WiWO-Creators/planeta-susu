@@ -1,6 +1,8 @@
 import { useEffect, useRef, type ReactNode } from "react";
 import { Button } from "@/components/ui/button";
+import { Photo } from "@/components/ui/photo";
 import { characterMap, type CharacterSlug } from "@/data/characters";
+import { cn } from "@/lib/utils";
 
 let actx: AudioContext | null = null;
 
@@ -142,11 +144,15 @@ export function ArcadeStart({
 }) {
   const c = characterMap[who];
   return (
-    <div className="flex min-h-[26rem] flex-col items-center justify-center px-4 py-6 text-center">
+    <div className="flex min-h-[26rem] flex-col items-center justify-center px-3 py-5 text-center">
       {cover ? (
-        <div className="relative mb-2 h-36 w-full max-w-md overflow-hidden rounded-card border-[3px] border-ink sm:h-44">
-          <img src={cover} alt="" className="h-full w-full object-cover" />
-          <img src={c.portrait} alt="" className="absolute bottom-0 right-3 h-28 w-auto object-contain" />
+        <div className="relative mb-3 w-full max-w-lg overflow-hidden rounded-card border-[3px] border-ink">
+          <Photo src={cover} ratio="video" />
+          <img
+            src={c.portrait}
+            alt=""
+            className="absolute bottom-0 right-2 h-28 w-auto object-contain sm:h-32"
+          />
         </div>
       ) : (
         <img src={c.portrait} alt="" className="h-32 w-auto bob object-contain sm:h-40" />
@@ -247,3 +253,33 @@ export function useRaf(active: boolean, tick: (dt: number) => void) {
 }
 
 export const useLoop = useRaf;
+
+export function Stage({
+  bg,
+  children,
+  className,
+}: {
+  bg?: string;
+  children: ReactNode;
+  className?: string;
+}) {
+  return (
+    <div
+      className={cn(
+        "relative mt-3 overflow-hidden rounded-card border-[3px] border-ink",
+        className,
+      )}
+      style={
+        bg
+          ? {
+              backgroundImage: `url(${bg})`,
+              backgroundSize: "cover",
+              backgroundPosition: "center",
+            }
+          : undefined
+      }
+    >
+      {children}
+    </div>
+  );
+}

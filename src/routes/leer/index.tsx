@@ -1,4 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
+import { Photo } from "@/components/ui/photo";
 import { KIND_LABEL, KIND_ORDER, readings, type ReadingKind } from "@/data/readings";
 import { useProgress } from "@/store/progress";
 
@@ -9,11 +10,9 @@ function Leer() {
   return (
     <main className="mx-auto max-w-6xl px-4 py-8 sm:px-6">
       <h1 className="font-display text-4xl font-semibold sm:text-6xl">Leer</h1>
-      <img
-        src="/scenes/biblioteca.jpg"
-        alt=""
-        className="mt-6 h-40 w-full rounded-blob border-[3px] border-ink object-cover shadow-chunky sm:h-56"
-      />
+      <div className="mt-6 overflow-hidden rounded-blob border-[3px] border-ink shadow-chunky">
+        <Photo src="/scenes/biblioteca.jpg" alt="" ratio="wide" />
+      </div>
       {KIND_ORDER.map((kind) => (
         <KindSection key={kind} kind={kind} completed={completed} />
       ))}
@@ -42,8 +41,8 @@ function KindSection({ kind, completed }: { kind: ReadingKind; completed: string
               params={{ id: r.id }}
               className="overflow-hidden rounded-card border-[3px] border-ink bg-cloud shadow-chunky-sm transition-transform hover:-translate-y-1"
             >
-              <div className="relative h-36 overflow-hidden">
-                <img src={r.cover} alt="" className="h-full w-full object-cover" />
+              <div className="relative">
+                <Photo src={r.cover} ratio="card" />
                 {read ? (
                   <span className="absolute right-2 top-2 rounded-full bg-yellow px-2 py-0.5 font-display text-xs font-semibold">
                     Leído

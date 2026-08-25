@@ -1,4 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
+import { Photo } from "@/components/ui/photo";
 import { characterMap } from "@/data/characters";
 import { stories, storyCover } from "@/data/stories";
 import { useProgress } from "@/store/progress";
@@ -21,10 +22,10 @@ function Aventuras() {
               params={{ id: s.id }}
               className="lift overflow-hidden rounded-card border-[3px] border-ink bg-cloud shadow-chunky-sm"
             >
-              <div className="relative h-44 overflow-hidden">
-                <img src={storyCover[s.id] ?? host.portrait} alt="" className="h-full w-full object-cover" />
+              <div className="relative">
+                <Photo src={storyCover[s.id] ?? host.portrait} ratio="card" />
                 {done ? (
-                  <span className="absolute left-2 top-2 rounded-full bg-yellow px-2 py-0.5 font-display text-xs font-semibold">
+                  <span className="absolute left-2 top-2 rounded-full border-2 border-ink bg-yellow px-2 py-0.5 font-display text-xs font-semibold">
                     Leído
                   </span>
                 ) : null}

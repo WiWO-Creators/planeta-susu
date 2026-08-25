@@ -1,4 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
+import { Photo } from "@/components/ui/photo";
 import { characterMap } from "@/data/characters";
 import { games } from "@/data/games";
 import { useProgress } from "@/store/progress";
@@ -28,12 +29,12 @@ function Juegos() {
               params={{ id: g.id }}
               className="lift overflow-hidden rounded-card border-[3px] border-ink bg-cloud shadow-chunky-sm"
             >
-              <div className="relative h-40 overflow-hidden sm:h-48">
-                <img src={g.cover} alt="" className="h-full w-full object-cover" />
+              <div className="relative">
+                <Photo src={g.cover} ratio="card" />
                 <img
                   src={host.portrait}
                   alt=""
-                  className="absolute bottom-0 right-1 h-24 w-auto object-contain object-bottom"
+                  className="absolute bottom-0 right-1 h-24 w-auto object-contain object-bottom sm:h-28"
                 />
                 {done ? (
                   <span className="absolute left-2 top-2 inline-flex items-center gap-1 rounded-full border-2 border-ink bg-yellow px-2 py-0.5 font-display text-xs font-semibold">

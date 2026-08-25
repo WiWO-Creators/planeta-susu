@@ -85,16 +85,18 @@ function Home() {
                   params={{ tema: t.topic }}
                   className="card-press overflow-hidden rounded-card border-[3px] border-ink bg-cloud shadow-chunky-sm"
                 >
-                  <div className="relative">
-                    <Photo src={t.cover} ratio="square" />
+                  <div
+                    className="flex aspect-square items-end justify-center px-2 pt-4"
+                    style={{ background: `${host.color}40` }}
+                  >
                     <img
                       src={host.portrait}
-                      alt=""
-                      className="absolute bottom-0 right-0 h-16 w-auto object-contain sm:h-20"
+                      alt={host.name}
+                      className="h-[88%] w-auto object-contain object-bottom"
                     />
                   </div>
-                  <p className="p-2 text-center font-display text-base font-semibold leading-tight sm:text-lg">
-                    {host.name}
+                  <p className="border-t-[3px] border-ink p-2 text-center font-display text-base font-semibold leading-tight sm:text-lg">
+                    {host.nameAccent}
                   </p>
                 </Link>
               );

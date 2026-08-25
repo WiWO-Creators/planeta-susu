@@ -1,19 +1,8 @@
 import { useEffect, useMemo, useRef, useState, type PointerEvent } from "react";
 import { characters } from "@/data/characters";
 import { cn } from "@/lib/utils";
+import { ART, BALLOON_ART, blit, loadImages } from "@/data/gameArt";
 import { GameWin } from "./GameWin";
-import {
-  drawBalloon,
-  drawBread,
-  drawCheese,
-  drawCloud,
-  drawDrop,
-  drawLettuce,
-  drawSea,
-  drawSun,
-  drawTomato,
-} from "./stickers";
-import { Sticker } from "./Sticker";
 import {
   ArcadeHud,
   ArcadeStart,
@@ -59,6 +48,7 @@ export function SilhouetteGame() {
         who="zizu"
         title="¿Quién es esa sombra?"
         how="Una sombra camina. Tocá de quién es."
+        cover="/scenes/patio-siluetas.jpg"
         onStart={() => {
           setPhase("play");
           setI(0);
@@ -111,10 +101,10 @@ export function SilhouetteGame() {
 }
 
 const STAGES = [
-  { id: "mar", label: "mar", color: "#8ec5ff", draw: drawSea },
-  { id: "sol", label: "sol", color: "#ffe27a", draw: drawSun },
-  { id: "nube", label: "nube", color: "#fff6d8", draw: drawCloud },
-  { id: "lluvia", label: "lluvia", color: "#b7e4ff", draw: drawDrop },
+  { id: "mar", label: "mar", color: "#8ec5ff", src: ART.wave },
+  { id: "sol", label: "sol", color: "#ffe27a", src: ART.sun },
+  { id: "nube", label: "nube", color: "#fff6d8", src: ART.cloud },
+  { id: "lluvia", label: "lluvia", color: "#b7e4ff", src: ART.drop },
 ];
 
 export function CycleGame() {
@@ -139,6 +129,7 @@ export function CycleGame() {
         who="zizu"
         title="Viaje de una gota"
         how="Tocá el camino: mar, sol, nube, lluvia."
+        cover="/scenes/ciclo-agua.jpg"
         onStart={() => {
           setPhase("play");
           setStep(0);
@@ -155,8 +146,8 @@ export function CycleGame() {
   return (
     <div>
       <ArcadeHud score={step * 25} extra={<span>Ahora: {STAGES[step]?.label}</span>} />
-      <div className="relative mt-3 min-h-[22rem] overflow-hidden rounded-card border-[3px] border-ink bg-sky">
-        <div className="absolute inset-x-0 bottom-0 h-[30%] bg-vector" />
+      <div className="relative mt-3 min-h-[22rem] overflow-hidden rounded-card border-[3px] border-ink">
+        <img src="/scenes/ciclo-agua.jpg" alt="" className="absolute inset-0 h-full w-full object-cover" />
         <div className="relative grid h-full grid-cols-2 gap-4 p-5 sm:grid-cols-4">
           {STAGES.map((s, i) => (
             <button
@@ -164,12 +155,11 @@ export function CycleGame() {
               type="button"
               onClick={() => tap(i)}
               className={cn(
-                "mt-auto flex min-h-36 flex-col items-center justify-center gap-1 rounded-card border-[3px] border-ink font-display text-xl font-semibold shadow-chunky active:translate-y-1",
-                i === step ? "scale-105" : "opacity-70",
+                "mt-auto flex min-h-36 flex-col items-center justify-center gap-1 rounded-card border-[3px] border-ink bg-cream/90 font-display text-xl font-semibold shadow-chunky active:translate-y-1",
+                i === step ? "scale-105" : "opacity-80",
               )}
-              style={{ background: s.color }}
             >
-              <Sticker draw={s.draw} size={88} />
+              <img src={s.src} alt="" className="h-20 w-20 object-contain bob" />
               {s.label}
             </button>
           ))}
@@ -221,6 +211,7 @@ export function RhymeGame() {
         who="margarel"
         title="¿Riman?"
         how="Dos palabras. Tocá SÍ o NO."
+        cover="/scenes/jardin-rimas.jpg"
         onStart={() => {
           setPhase("play");
           setI(0);
@@ -279,7 +270,7 @@ export function RhymeGame() {
   );
 }
 
-type Balloon = { id: number; x: number; y: number; vy: number; r: number; color: string; pop: number };
+type Balloon = { id: number; x: number; y: number; vy: number; r: number; color: string; pop: number; src: string };
 let bid = 1;
 
 type CountWorld = {
@@ -293,6 +284,7 @@ type CountWorld = {
   score: number;
   ps: Particle[];
   over: boolean;
+  sprites: Record<string, HTMLImageElement>;
 };
 
 export function CountGame() {
@@ -301,6 +293,13 @@ export function CountGame() {
   const [phase, setPhase] = useState<"start" | "play" | "win">("start");
   const [hud, setHud] = useState({ score: 0, got: 0, need: 4, wave: 1 });
   const hudRef = useRef(hud);
+  const sprites = useRef<Record<string, HTMLImageElement>>({});
+
+  useEffect(() => {
+    void loadImages([...BALLOON_ART, "/scenes/picnic-numeros.jpg"]).then((m) => {
+      sprites.current = m;
+    });
+  }, []);
 
   useEffect(() => {
     if (phase !== "play") return;
@@ -318,6 +317,7 @@ export function CountGame() {
       score: 0,
       ps: [],
       over: false,
+      sprites: sprites.current,
     };
     hudRef.current = { score: 0, got: 0, need: 4, wave: 1 };
     setHud(hudRef.current);
@@ -335,6 +335,7 @@ export function CountGame() {
       }
       g.w = sized.w;
       g.h = sized.h;
+      g.sprites = sprites.current;
       g.spawn += dt;
       if (g.spawn > Math.max(0.45, 0.9 - g.wave * 0.08)) {
         g.spawn = 0;
@@ -345,8 +346,9 @@ export function CountGame() {
           y: g.h + r,
           vy: 70 + g.wave * 18,
           r,
-          color: ["#ff5d8f", "#ffd000", "#5579df", "#2ebe7a", "#6c3ce0"][Math.floor(Math.random() * 5)]!,
+          color: "#ff5d8f",
           pop: 0,
+          src: BALLOON_ART[Math.floor(Math.random() * BALLOON_ART.length)]!,
         });
       }
       stepParticles(g.ps, dt);
@@ -417,6 +419,7 @@ export function CountGame() {
         who="vector"
         title="Revienta globos"
         how="Tocá globos hasta llegar al número."
+        cover="/scenes/picnic-numeros.jpg"
         onStart={() => setPhase("play")}
       />
     );
@@ -447,29 +450,32 @@ export function CountGame() {
 }
 
 function paintCount(ctx: CanvasRenderingContext2D, g: CountWorld) {
-  const sky = ctx.createLinearGradient(0, 0, 0, g.h);
-  sky.addColorStop(0, "#7ec8ea");
-  sky.addColorStop(1, "#d8f0ff");
-  ctx.fillStyle = sky;
+  const bg = g.sprites["/scenes/picnic-numeros.jpg"];
+  if (bg && bg.complete) ctx.drawImage(bg, 0, 0, g.w, g.h);
+  else {
+    ctx.fillStyle = "#7ec8ea";
+    ctx.fillRect(0, 0, g.w, g.h);
+  }
+  ctx.fillStyle = "rgba(255,246,216,0.12)";
   ctx.fillRect(0, 0, g.w, g.h);
   for (const b of g.balls) {
-    ctx.save();
-    ctx.translate(b.x, b.y);
-    drawBalloon(ctx, b.r, b.color);
-    ctx.restore();
+    blit(ctx, g.sprites[b.src], b.x, b.y, b.r * 2.6);
   }
   drawParticles(ctx, g.ps);
   ctx.font = "700 28px Fredoka, Nunito, sans-serif";
   ctx.textAlign = "center";
-  ctx.fillStyle = "#1f1408";
+  ctx.strokeStyle = "#1f1408";
+  ctx.lineWidth = 5;
+  ctx.fillStyle = "#ffd000";
+  ctx.strokeText(String(g.need), g.w / 2, 40);
   ctx.fillText(String(g.need), g.w / 2, 40);
 }
 
 const ING = [
-  { id: "pan", label: "pan", color: "#ea9e48", draw: drawBread },
-  { id: "tomate", label: "tomate", color: "#ffd8d4", draw: drawTomato },
-  { id: "hoja", label: "hoja", color: "#c8f5dc", draw: drawLettuce },
-  { id: "queso", label: "queso", color: "#ffe27a", draw: drawCheese },
+  { id: "pan", label: "pan", color: "#ea9e48", src: ART.bread },
+  { id: "tomate", label: "tomate", color: "#ffd8d4", src: ART.tomato },
+  { id: "hoja", label: "hoja", color: "#c8f5dc", src: ART.lettuce },
+  { id: "queso", label: "queso", color: "#ffe27a", src: ART.cheese },
 ] as const;
 
 export function RecipeGame() {
@@ -497,6 +503,7 @@ export function RecipeGame() {
         who="gadu"
         title="Receta de pasos"
         how="El orden importa. Tocá el ingrediente que pide la receta."
+        cover="/scenes/receta-pasos.jpg"
         onStart={() => {
           setPhase("play");
           setPlaced([]);
@@ -523,12 +530,15 @@ export function RecipeGame() {
       <p className="mt-3 text-center font-display text-2xl font-semibold">
         Ahora: {order[placed.length]?.label}
       </p>
-      <div className="mt-3 flex min-h-48 flex-col items-center justify-end rounded-card border-[3px] border-ink bg-cream p-4">
-        {placed.map((id) => {
-          const it = ING.find((x) => x.id === id)!;
-          return <Sticker key={id} draw={it.draw} size={96} />;
-        })}
-        <p className="mt-1 font-display text-sm">plato</p>
+      <div className="relative mt-3 flex min-h-56 flex-col items-center justify-end overflow-hidden rounded-card border-[3px] border-ink p-4">
+        <img src="/scenes/cocina-lab.jpg" alt="" className="absolute inset-0 h-full w-full object-cover" />
+        <img src={ART.plate} alt="" className="relative z-[1] h-36 w-36 object-contain" />
+        <div className="absolute inset-x-0 bottom-10 z-[2] flex flex-col items-center">
+          {placed.map((id) => {
+            const it = ING.find((x) => x.id === id)!;
+            return <img key={id} src={it.src} alt="" className="h-16 w-16 -mb-6 object-contain" />;
+          })}
+        </div>
       </div>
       <div className="mt-3 grid grid-cols-2 gap-2">
         {ING.filter((x) => !placed.includes(x.id)).map((it) => (
@@ -536,10 +546,9 @@ export function RecipeGame() {
             key={it.id}
             type="button"
             onClick={() => tap(it.id)}
-            className="flex min-h-24 flex-col items-center justify-center rounded-2xl border-[3px] border-ink font-display text-xl font-semibold shadow-chunky active:translate-y-1"
-            style={{ background: it.color }}
+            className="flex min-h-24 flex-col items-center justify-center rounded-2xl border-[3px] border-ink bg-cream font-display text-xl font-semibold shadow-chunky active:translate-y-1"
           >
-            <Sticker draw={it.draw} size={72} />
+            <img src={it.src} alt="" className="h-16 w-16 object-contain bob" />
             {it.label}
           </button>
         ))}

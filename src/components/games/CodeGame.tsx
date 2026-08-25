@@ -123,6 +123,7 @@ export function CodeGame() {
         who="gadu"
         title="Flechas para Gadú"
         how="Armá un camino con flechas. Gadú camina solo. Si pega una roca, se edita."
+        cover="/scenes/algoritmo-si.jpg"
         onStart={() => {
           setPhase("play");
           setLvl(0);

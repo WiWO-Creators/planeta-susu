@@ -11,28 +11,28 @@ import {
   stepParticles,
   type Particle,
 } from "./playkit";
-import { drawBin, ITEM_DRAW } from "./stickers";
+import { ART, TRASH_ART, blit, loadImages } from "@/data/gameArt";
 import { GameWin } from "./GameWin";
 
 type Bin = "org" | "rec" | "otr";
-type Kind = { name: string; bin: Bin; color: string };
+type Kind = { name: string; bin: Bin; src: string };
 
 const KINDS: Kind[] = [
-  { name: "Cáscara", bin: "org", color: "#ffd000" },
-  { name: "Manzana", bin: "org", color: "#d7655c" },
-  { name: "Hojas", bin: "org", color: "#2ebe7a" },
-  { name: "Botella", bin: "rec", color: "#5fade9" },
-  { name: "Papel", bin: "rec", color: "#fff6d8" },
-  { name: "Lata", bin: "rec", color: "#8a7a68" },
-  { name: "Cartón", bin: "rec", color: "#ea9e48" },
-  { name: "Bolsa", bin: "otr", color: "#ff5d8f" },
-  { name: "Chicle", bin: "otr", color: "#6c3ce0" },
+  { name: "Cáscara", bin: "org", src: TRASH_ART.Cáscara },
+  { name: "Manzana", bin: "org", src: TRASH_ART.Manzana },
+  { name: "Hojas", bin: "org", src: TRASH_ART.Hojas },
+  { name: "Botella", bin: "rec", src: TRASH_ART.Botella },
+  { name: "Papel", bin: "rec", src: TRASH_ART.Papel },
+  { name: "Lata", bin: "rec", src: TRASH_ART.Lata },
+  { name: "Cartón", bin: "rec", src: TRASH_ART.Cartón },
+  { name: "Bolsa", bin: "otr", src: TRASH_ART.Bolsa },
+  { name: "Chicle", bin: "otr", src: TRASH_ART.Chicle },
 ];
 
-const BINS: { id: Bin; label: string; color: string }[] = [
-  { id: "org", label: "Orgánico", color: "#2ebe7a" },
-  { id: "rec", label: "Recicla", color: "#5579df" },
-  { id: "otr", label: "Otros", color: "#2a2118" },
+const BINS: { id: Bin; label: string; src: string }[] = [
+  { id: "org", label: "Orgánico", src: ART.binOrg },
+  { id: "rec", label: "Recicla", src: ART.binRec },
+  { id: "otr", label: "Otros", src: ART.binOtr },
 ];
 
 const GOAL = 10;
@@ -54,29 +54,35 @@ type World = {
   lives: number;
   combo: number;
   shake: number;
-  flash: string | null;
   ps: Particle[];
   pops: { x: number; y: number; text: string; life: number }[];
   over: "win" | "lost" | null;
+  sprites: Record<string, HTMLImageElement>;
 };
 
 function spawn(w: number): Item {
   const kind = KINDS[Math.floor(Math.random() * KINDS.length)]!;
-  return { kind, x: w / 2, y: 70, fly: null };
+  return { kind, x: w / 2, y: 86, fly: null };
 }
 
 export function RecycleGame() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const world = useRef<World | null>(null);
-  const zizu = useRef<HTMLImageElement | null>(null);
   const [phase, setPhase] = useState<"start" | "play" | "win" | "lost">("start");
   const [hud, setHud] = useState({ score: 0, lives: 3, combo: 0 });
   const hudRef = useRef(hud);
+  const sprites = useRef<Record<string, HTMLImageElement>>({});
 
   useEffect(() => {
-    const img = new Image();
-    img.src = "/characters/zizu.webp";
-    zizu.current = img;
+    const srcs = [
+      ...KINDS.map((k) => k.src),
+      ...BINS.map((b) => b.src),
+      "/characters/zizu.webp",
+      "/scenes/zizu-rio.jpg",
+    ];
+    void loadImages(srcs).then((m) => {
+      sprites.current = m;
+    });
   }, []);
 
   useEffect(() => {
@@ -88,18 +94,19 @@ export function RecycleGame() {
       w: boot.w,
       h: boot.h,
       item: spawn(boot.w),
-      speed: 90,
+      speed: 80,
       lock: 0,
       score: 0,
       lives: 3,
       combo: 0,
       shake: 0,
-      flash: null,
       ps: [],
       pops: [],
       over: null,
+      sprites: sprites.current,
     };
-    setHud({ score: 0, lives: 3, combo: 0 });
+    hudRef.current = { score: 0, lives: 3, combo: 0 };
+    setHud(hudRef.current);
 
     let last = performance.now();
     let raf = 0;
@@ -115,8 +122,9 @@ export function RecycleGame() {
       }
       g.w = sized.w;
       g.h = sized.h;
+      g.sprites = sprites.current;
       step(g, dt);
-      paint(sized.ctx, g, zizu.current);
+      paint(sized.ctx, g);
       if (
         g.score !== hudRef.current.score ||
         g.lives !== hudRef.current.lives ||
@@ -141,8 +149,8 @@ export function RecycleGame() {
     const c = canvasRef.current;
     if (!g || !c || g.lock > 0 || !g.item || g.item.fly) return;
     const { x, y } = canvasPos(e, c);
-    const binH = Math.max(110, g.h * 0.22);
-    if (y < g.h - binH - 8) return;
+    const binH = Math.max(130, g.h * 0.28);
+    if (y < g.h - binH - 12) return;
     const i = Math.min(2, Math.max(0, Math.floor((x / g.w) * 3)));
     const bin = BINS[i]!;
     const item = g.item;
@@ -151,20 +159,23 @@ export function RecycleGame() {
       cheer();
       item.fly = { x: bw * i + bw / 2, y: g.h - binH / 2, t: 0 };
       g.combo += 1;
-      g.flash = bin.color;
-      burst(g.ps, item.x, item.y, item.kind.color, 18);
-      g.pops.push({ x: item.x, y: item.y - 20, text: g.combo > 1 ? `+${10 * g.combo}` : "+10", life: 0.8 });
+      burst(g.ps, item.x, item.y, "#ffd000", 18);
+      g.pops.push({
+        x: item.x,
+        y: item.y - 20,
+        text: g.combo > 1 ? `combo x${g.combo}` : "¡Bien!",
+        life: 0.8,
+      });
     } else {
       boop();
       g.combo = 0;
       g.lives -= 1;
       g.shake = 0.45;
       g.lock = 0.35;
-      setHud({ score: g.score, lives: g.lives, combo: 0 });
       if (g.lives <= 0) g.over = "lost";
       else {
         g.item = spawn(g.w);
-        g.speed = Math.min(170, g.speed + 6);
+        g.speed = Math.min(160, g.speed + 6);
       }
     }
   }
@@ -174,7 +185,8 @@ export function RecycleGame() {
       <ArcadeStart
         who="zizu"
         title="¡A los botes!"
-        how="Cae una cosa. Tocá el bote correcto. Orgánico, recicla u otros."
+        how="Cae una cosa. Tocá el bote correcto: orgánico, recicla u otros."
+        cover="/scenes/reciclar.jpg"
         onStart={() => setPhase("play")}
       />
     );
@@ -197,6 +209,7 @@ export function RecycleGame() {
         who="zizu"
         title="Se escapó algo"
         how={`${hud.score} puntos. ¿Otra ronda?`}
+        cover="/scenes/zizu-rio.jpg"
         onStart={() => setPhase("play")}
       />
     );
@@ -221,7 +234,6 @@ export function RecycleGame() {
 function step(g: World, dt: number) {
   g.lock = Math.max(0, g.lock - dt);
   g.shake = Math.max(0, g.shake - dt * 2.2);
-  if (g.flash) g.flash = null;
   stepParticles(g.ps, dt);
   for (let i = g.pops.length - 1; i >= 0; i--) {
     const p = g.pops[i]!;
@@ -231,7 +243,7 @@ function step(g: World, dt: number) {
   }
   const item = g.item;
   if (!item) return;
-  const binH = Math.max(110, g.h * 0.22);
+  const binH = Math.max(130, g.h * 0.28);
   if (item.fly) {
     item.fly.t += dt * 3.2;
     const t = Math.min(1, item.fly.t);
@@ -245,12 +257,12 @@ function step(g: World, dt: number) {
         return;
       }
       g.item = spawn(g.w);
-      g.speed = Math.min(170, 90 + g.score * 0.8);
+      g.speed = Math.min(160, 80 + g.score * 0.7);
     }
     return;
   }
   item.y += g.speed * dt;
-  if (item.y > g.h - binH + 20) {
+  if (item.y > g.h - binH + 24) {
     boop();
     g.combo = 0;
     g.lives -= 1;
@@ -258,52 +270,58 @@ function step(g: World, dt: number) {
     if (g.lives <= 0) g.over = "lost";
     else {
       g.item = spawn(g.w);
-      g.speed = Math.min(170, g.speed + 8);
+      g.speed = Math.min(160, g.speed + 8);
     }
   }
 }
 
-function paint(ctx: CanvasRenderingContext2D, g: World, zizu: HTMLImageElement | null) {
-  const { w, h } = g;
+function paint(ctx: CanvasRenderingContext2D, g: World) {
+  const { w, h, sprites } = g;
   ctx.save();
   if (g.shake > 0) {
     ctx.translate((Math.random() - 0.5) * 12 * g.shake, (Math.random() - 0.5) * 10 * g.shake);
   }
-  const sky = ctx.createLinearGradient(0, 0, 0, h);
-  sky.addColorStop(0, "#7ec8ea");
-  sky.addColorStop(0.55, "#b7e3a1");
-  sky.addColorStop(1, "#6fbf78");
-  ctx.fillStyle = sky;
+  const bg = sprites["/scenes/zizu-rio.jpg"];
+  if (bg && bg.complete) ctx.drawImage(bg, 0, 0, w, h);
+  else {
+    ctx.fillStyle = "#8fd6a4";
+    ctx.fillRect(0, 0, w, h);
+  }
+  ctx.fillStyle = "rgba(255,246,216,0.18)";
   ctx.fillRect(0, 0, w, h);
 
-  const binH = Math.max(110, h * 0.22);
+  const binH = Math.max(130, h * 0.28);
   const bw = w / 3;
   BINS.forEach((b, i) => {
-    drawBin(ctx, i * bw + 10, h - binH, bw - 20, binH + 6, b.color, b.label, b.id);
+    blit(ctx, sprites[b.src], i * bw + bw / 2, h - binH / 2 + 8, Math.min(bw - 8, binH + 20));
+    ctx.font = "700 15px Fredoka, Nunito, sans-serif";
+    ctx.textAlign = "center";
+    ctx.fillStyle = "#fff6d8";
+    ctx.strokeStyle = "#1f1408";
+    ctx.lineWidth = 4;
+    ctx.strokeText(b.label, i * bw + bw / 2, h - 10);
+    ctx.fillText(b.label, i * bw + bw / 2, h - 10);
   });
 
-  if (zizu && zizu.complete) {
-    const zh = 90;
-    const zw = (zizu.width / zizu.height) * zh;
-    ctx.drawImage(zizu, 12, h - binH - zh + 8, zw, zh);
-  }
+  blit(ctx, sprites["/characters/zizu.webp"], 52, h - binH - 28, 96);
 
   ctx.font = "700 22px Fredoka, Nunito, sans-serif";
   ctx.textAlign = "center";
-  ctx.fillStyle = "#1f1408";
-  ctx.fillText("¡Tocá el bote!", w / 2, 32);
+  ctx.fillStyle = "#ffd000";
+  ctx.strokeStyle = "#1f1408";
+  ctx.lineWidth = 5;
+  ctx.strokeText("¡Tocá el bote!", w / 2, 34);
+  ctx.fillText("¡Tocá el bote!", w / 2, 34);
 
   const item = g.item;
   if (item) {
-    ctx.save();
-    ctx.translate(item.x, item.y);
-    const fn = ITEM_DRAW[item.kind.name];
-    if (fn) fn(ctx, 74);
+    blit(ctx, sprites[item.kind.src], item.x, item.y, 108);
     ctx.font = "700 16px Fredoka, Nunito, sans-serif";
-    ctx.textAlign = "center";
     ctx.fillStyle = "#1f1408";
-    ctx.fillText(item.kind.name, 0, 58);
-    ctx.restore();
+    ctx.strokeStyle = "#fff6d8";
+    ctx.lineWidth = 4;
+    ctx.strokeText(item.kind.name, item.x, item.y + 62);
+    ctx.fillText(item.kind.name, item.x, item.y + 62);
   }
 
   drawParticles(ctx, g.ps);
@@ -311,7 +329,10 @@ function paint(ctx: CanvasRenderingContext2D, g: World, zizu: HTMLImageElement |
   ctx.font = "700 22px Fredoka, Nunito, sans-serif";
   for (const p of g.pops) {
     ctx.globalAlpha = Math.max(0, p.life);
-    ctx.fillStyle = "#1f1408";
+    ctx.fillStyle = "#ffd000";
+    ctx.strokeStyle = "#1f1408";
+    ctx.lineWidth = 4;
+    ctx.strokeText(p.text, p.x, p.y);
     ctx.fillText(p.text, p.x, p.y);
   }
   ctx.globalAlpha = 1;

@@ -3,8 +3,7 @@ import { characters } from "@/data/characters";
 import { cn } from "@/lib/utils";
 import { GameWin } from "./GameWin";
 import { ArcadeHud, ArcadeStart, Playfield, tone } from "./playkit";
-import { Sticker } from "./Sticker";
-import { drawApple, drawBanana, drawBead, drawPlanet } from "./stickers";
+import { ART, BEAD_ART } from "@/data/gameArt";
 
 export function MemoryGame() {
   const [phase, setPhase] = useState<"start" | "play" | "win">("start");
@@ -49,7 +48,7 @@ export function MemoryGame() {
   }
 
   if (phase === "start") {
-    return <ArcadeStart who="susu" title="Memoria" how="Volteá dos cartas. Encontrá a los cinco amigos." onStart={deal} />;
+    return <ArcadeStart who="susu" title="Memoria" how="Volteá dos cartas. Encontrá a los cinco amigos." cover="/scenes/grupo-lee.jpg" onStart={deal} />;
   }
   if (phase === "win") {
     return (
@@ -100,13 +99,7 @@ export function MemoryGame() {
   );
 }
 
-const BEADS = [
-  { color: "#ffd000", name: "sol" },
-  { color: "#6c3ce0", name: "uva" },
-  { color: "#2ebe7a", name: "hoja" },
-  { color: "#ff5d8f", name: "chicle" },
-  { color: "#5579df", name: "cielo" },
-];
+const BEADS = BEAD_ART;
 
 export function PatternGame() {
   const [phase, setPhase] = useState<"start" | "play" | "win">("start");
@@ -130,7 +123,7 @@ export function PatternGame() {
 
   if (phase === "start") {
     return (
-      <ArcadeStart who="gadu" title="La cola de Gadú" how="Mirá el patrón. Tocá el color que sigue." onStart={() => { setPhase("play"); setLvl(0); }} />
+      <ArcadeStart who="gadu" title="La cola de Gadú" how="Mirá el patrón. Tocá la cuentita que sigue." cover="/scenes/taller-gadu.jpg" onStart={() => { setPhase("play"); setLvl(0); }} />
     );
   }
   if (phase === "win") {
@@ -142,12 +135,12 @@ export function PatternGame() {
   return (
     <div>
       <ArcadeHud score={lvl * 15} extra={<span>Ronda {lvl + 1}/6</span>} />
-      <div className="mt-4 flex min-h-28 flex-wrap items-center justify-center gap-1 rounded-card border-[3px] border-ink bg-cloud p-3">
-        <img src="/characters/gadu.webp" alt="" className="h-16 w-auto object-contain" />
+      <div className="relative mt-4 flex min-h-32 flex-wrap items-center justify-center gap-1 overflow-hidden rounded-card border-[3px] border-ink bg-gadu/20 p-3">
+        <img src="/characters/gadu.webp" alt="" className="h-20 w-auto object-contain" />
         {pattern.map((c, i) => (
-          <Sticker key={i} size={56} draw={(ctx, s) => drawBead(ctx, s * 2.2, c.color)} />
+          <img key={i} src={c.src} alt="" className="h-14 w-14 object-contain sm:h-16 sm:w-16" />
         ))}
-        <span className="flex size-14 items-center justify-center rounded-full border-[3px] border-dashed border-ink font-display text-2xl">
+        <span className="flex size-14 items-center justify-center rounded-full border-[3px] border-dashed border-ink bg-cream font-display text-2xl">
           ?
         </span>
       </div>
@@ -160,7 +153,7 @@ export function PatternGame() {
             onClick={() => pick(c.color)}
             className="flex min-h-20 flex-col items-center justify-center rounded-2xl border-[3px] border-ink bg-cream shadow-chunky-sm active:translate-y-1"
           >
-            <Sticker size={52} draw={(ctx, s) => drawBead(ctx, s * 2.2, c.color)} />
+            <img src={c.src} alt="" className="h-14 w-14 object-contain" />
           </button>
         ))}
       </div>
@@ -221,7 +214,7 @@ export function SimonGame() {
   }
 
   if (phase === "start") {
-    return <ArcadeStart who="margarel" title="Eco de colores" how="Mirá. Escuchá. Repetí la canción." onStart={start} />;
+    return <ArcadeStart who="margarel" title="Eco de colores" how="Mirá. Escuchá. Repetí la canción." cover="/scenes/eco-colores.jpg" onStart={start} />;
   }
   if (phase === "win") {
     return <GameWin who="margarel" score={8} total={8} id="game:simon" badge="eco-margarel" kids="Repetir una canción es un algoritmo con ritmo." />;
@@ -273,7 +266,7 @@ export function OddGame() {
   }
 
   if (phase === "start") {
-    return <ArcadeStart who="vector" title="El que no encaja" how="Tocá el que es distinto. Cada vez más rápido." onStart={() => { setPhase("play"); setLvl(0); }} />;
+    return <ArcadeStart who="vector" title="El que no encaja" how="Tocá el que es distinto." cover="/scenes/picnic-numeros.jpg" onStart={() => { setPhase("play"); setLvl(0); }} />;
   }
   if (phase === "win") {
     return <GameWin who="vector" score={8} total={8} id="game:sobra" badge="coleccion-vector" kids="Una colección se entiende cuando ves al que se coló." />;
@@ -285,13 +278,7 @@ export function OddGame() {
       <div className="mt-4 grid grid-cols-3 gap-3">
         {Array.from({ length: 9 }, (_, i) => {
           const odd = i === round.oddAt;
-          const draw = round.apples
-            ? odd
-              ? drawBanana
-              : drawApple
-            : odd
-              ? drawApple
-              : (ctx: CanvasRenderingContext2D, s: number) => drawPlanet(ctx, s * 0.9, "#5579df", false);
+          const src = round.apples ? (odd ? ART.banana : ART.apple) : odd ? ART.apple : ART.planetBlue;
           return (
             <button
               key={i}
@@ -299,7 +286,7 @@ export function OddGame() {
               onClick={() => tap(i)}
               className="flex aspect-square items-center justify-center rounded-card border-[3px] border-ink bg-cream shadow-chunky-sm active:scale-95"
             >
-              <Sticker draw={draw} size={88} />
+              <img src={src} alt="" className="h-[85%] w-[85%] object-contain" />
             </button>
           );
         })}
@@ -330,7 +317,7 @@ export function SpotGame() {
   }
 
   if (phase === "start") {
-    return <ArcadeStart who="zizu" title="Busca en el patio" how="Encontrá las 6 cosas escondidas. Tocá cuando las veas." onStart={() => { setPhase("play"); setFound([]); }} />;
+    return <ArcadeStart who="zizu" title="Busca en el patio" how="Encontrá las 6 cosas escondidas. Tocá cuando las veas." cover="/scenes/zizu-patio.jpg" onStart={() => { setPhase("play"); setFound([]); }} />;
   }
   if (phase === "win") {
     return <GameWin who="zizu" score={6} total={6} id="game:busca" badge="lupa-zizu" kids="Observar es un superpoder. Zizú lo entrena todos los días." />;

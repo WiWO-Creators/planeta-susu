@@ -12,7 +12,7 @@ import {
   stepParticles,
   type Particle,
 } from "./playkit";
-import { drawPlanet } from "./stickers";
+import { PLANET_ART, blit, loadImages } from "@/data/gameArt";
 import { GameWin } from "./GameWin";
 
 const HUES = ["#5579df", "#6c3ce0", "#ffd000", "#ff5d8f", "#2ebe7a", "#ea9e48"];
@@ -26,7 +26,7 @@ type Planet = {
   r: number;
   color: string;
   pop: number;
-  ring: boolean;
+  src: string;
 };
 
 type World = {
@@ -39,6 +39,7 @@ type World = {
   score: number;
   ps: Particle[];
   over: boolean;
+  sprites: Record<string, HTMLImageElement>;
 };
 
 function make(n: number, w: number, h: number): Planet[] {
@@ -52,7 +53,7 @@ function make(n: number, w: number, h: number): Planet[] {
       r,
       color: HUES[Math.floor(Math.random() * HUES.length)]!,
       pop: 0,
-      ring: Math.random() > 0.55,
+      src: PLANET_ART[Math.floor(Math.random() * PLANET_ART.length)]!,
     };
   });
 }
@@ -63,6 +64,13 @@ export function MathGame() {
   const [phase, setPhase] = useState<"start" | "play" | "win">("start");
   const [hud, setHud] = useState({ score: 0, wave: 1, got: 0, need: 3 });
   const hudRef = useRef(hud);
+  const sprites = useRef<Record<string, HTMLImageElement>>({});
+
+  useEffect(() => {
+    void loadImages([...PLANET_ART, "/scenes/planeta-espacio.jpg"]).then((m) => {
+      sprites.current = m;
+    });
+  }, []);
 
   useEffect(() => {
     if (phase !== "play") return;
@@ -80,6 +88,7 @@ export function MathGame() {
       score: 0,
       ps: [],
       over: false,
+      sprites: sprites.current,
     };
     hudRef.current = { score: 0, wave: 1, got: 0, need };
     setHud(hudRef.current);
@@ -98,6 +107,7 @@ export function MathGame() {
       }
       g.w = sized.w;
       g.h = sized.h;
+      g.sprites = sprites.current;
       step(g, dt);
       paint(sized.ctx, g);
       const nextHud = { score: g.score, wave: g.wave, got: g.got, need: g.need };
@@ -159,6 +169,7 @@ export function MathGame() {
         who="vector"
         title="Caza planetas"
         how="Tocá los planetas que rebotan. Llegá al número de la ronda."
+        cover="/scenes/planetas-contar.jpg"
         onStart={() => setPhase("play")}
       />
     );
@@ -220,19 +231,16 @@ function step(g: World, dt: number) {
 }
 
 function paint(ctx: CanvasRenderingContext2D, g: World) {
-  ctx.fillStyle = "#140c2e";
-  ctx.fillRect(0, 0, g.w, g.h);
-  for (let i = 0; i < 40; i++) {
-    ctx.fillStyle = "rgba(255,246,216,0.35)";
-    ctx.beginPath();
-    ctx.arc((i * 97) % g.w, (i * 53) % g.h, 1.2, 0, Math.PI * 2);
-    ctx.fill();
+  const bg = g.sprites["/scenes/planeta-espacio.jpg"];
+  if (bg && bg.complete) ctx.drawImage(bg, 0, 0, g.w, g.h);
+  else {
+    ctx.fillStyle = "#140c2e";
+    ctx.fillRect(0, 0, g.w, g.h);
   }
+  ctx.fillStyle = "rgba(20,12,46,0.25)";
+  ctx.fillRect(0, 0, g.w, g.h);
   for (const p of g.planets) {
-    ctx.save();
-    ctx.translate(p.x, p.y);
-    drawPlanet(ctx, p.r, p.color, p.ring);
-    ctx.restore();
+    blit(ctx, g.sprites[p.src], p.x, p.y, p.r * 2.4);
   }
   ctx.fillStyle = "#ffd000";
   ctx.strokeStyle = "#1f1408";

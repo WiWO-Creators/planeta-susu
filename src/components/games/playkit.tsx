@@ -132,16 +132,25 @@ export function ArcadeStart({
   title,
   how,
   onStart,
+  cover,
 }: {
   who: CharacterSlug;
   title: string;
   how: string;
   onStart: () => void;
+  cover?: string;
 }) {
   const c = characterMap[who];
   return (
-    <div className="flex min-h-[26rem] flex-col items-center justify-center px-4 py-8 text-center">
-      <img src={c.portrait} alt="" className="h-32 w-auto bob object-contain sm:h-40" />
+    <div className="flex min-h-[26rem] flex-col items-center justify-center px-4 py-6 text-center">
+      {cover ? (
+        <div className="relative mb-2 h-36 w-full max-w-md overflow-hidden rounded-card border-[3px] border-ink sm:h-44">
+          <img src={cover} alt="" className="h-full w-full object-cover" />
+          <img src={c.portrait} alt="" className="absolute bottom-0 right-3 h-28 w-auto object-contain" />
+        </div>
+      ) : (
+        <img src={c.portrait} alt="" className="h-32 w-auto bob object-contain sm:h-40" />
+      )}
       <h2 className="mt-3 font-display text-3xl font-semibold sm:text-4xl">{title}</h2>
       <p className="mt-2 max-w-sm text-lg">{how}</p>
       <Button

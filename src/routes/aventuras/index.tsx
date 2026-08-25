@@ -20,7 +20,7 @@ function Aventuras() {
               key={s.id}
               to="/aventuras/$id"
               params={{ id: s.id }}
-              className="lift overflow-hidden rounded-card border-[3px] border-ink bg-cloud shadow-chunky-sm"
+              className="card-press overflow-hidden rounded-card border-[3px] border-ink bg-cloud shadow-chunky-sm"
             >
               <div className="relative">
                 <Photo src={storyCover[s.id] ?? host.portrait} ratio="card" />

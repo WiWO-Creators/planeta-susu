@@ -1,7 +1,8 @@
 import { Link, useRouterState } from "@tanstack/react-router";
-import { BookOpen, Compass, Flame, Heart, Home, Menu, Puzzle, Sparkles, X } from "lucide-react";
+import { Flame, Menu, Sparkles, X } from "lucide-react";
 import { useEffect, useState, type ReactNode } from "react";
 import { Logo } from "@/components/brand/Logo";
+import { SparkleField, PageEnter } from "@/components/play/Magic";
 import { nav } from "@/data/nav";
 import { BRAND } from "@/data/brand";
 import { characters } from "@/data/characters";
@@ -9,6 +10,7 @@ import { useProgress } from "@/store/progress";
 import { cn } from "@/lib/utils";
 
 export function SiteShell({ children }: { children: ReactNode }) {
+  const pathname = useRouterState({ select: (s) => s.location.pathname });
   useEffect(() => {
     void Promise.resolve(useProgress.persist.rehydrate()).then(() => {
       useProgress.getState().checkin();
@@ -25,8 +27,9 @@ export function SiteShell({ children }: { children: ReactNode }) {
         Saltar al contenido
       </a>
       <Header />
+      <SparkleField />
       <div id="contenido" className="flex-1 pb-24 md:pb-0">
-        {children}
+        <PageEnter key={pathname}>{children}</PageEnter>
       </div>
       <Footer />
       <BottomNav />
@@ -59,7 +62,7 @@ function Header() {
                 key={item.to}
                 to={item.to}
                 className={cn(
-                  "rounded-full px-3 py-2 font-display text-sm font-semibold transition-colors",
+                  "rounded-full px-3 py-2 font-display text-sm font-semibold nav-blob",
                   active ? "bg-yellow text-ink" : "text-ink-soft hover:bg-yellow/50 hover:text-ink",
                 )}
               >
@@ -121,11 +124,11 @@ function Header() {
 function BottomNav() {
   const pathname = useRouterState({ select: (s) => s.location.pathname });
   const items = [
-    { to: "/", label: "Casa", icon: Home },
-    { to: "/explora", label: "Explora", icon: Compass },
-    { to: "/juegos", label: "Jugar", icon: Puzzle },
-    { to: "/personajes", label: "Amigos", icon: Heart },
-    { to: "/padres", label: "Grandes", icon: BookOpen },
+    { to: "/", label: "Casa", face: "/characters/susu.webp" },
+    { to: "/explora", label: "Explora", face: "/characters/zizu.webp" },
+    { to: "/juegos", label: "Jugar", face: "/characters/gadu.webp" },
+    { to: "/personajes", label: "Amigos", face: "/characters/vector.webp" },
+    { to: "/padres", label: "Grandes", face: "/characters/margarel.webp" },
   ] as const;
   return (
     <nav
@@ -138,17 +141,16 @@ function BottomNav() {
             item.to === "/"
               ? pathname === "/"
               : pathname === item.to || pathname.startsWith(`${item.to}/`);
-          const Icon = item.icon;
           return (
             <li key={item.to}>
               <Link
                 to={item.to}
                 className={cn(
-                  "flex min-h-14 flex-col items-center justify-center gap-0.5 rounded-2xl font-display text-[11px] font-semibold",
+                  "nav-blob flex min-h-16 flex-col items-center justify-center gap-0.5 rounded-2xl font-display text-[11px] font-semibold",
                   active ? "bg-yellow text-ink" : "text-ink-soft",
                 )}
               >
-                <Icon className="size-5" strokeWidth={2.4} />
+                <img src={item.face} alt="" className={cn("h-8 w-auto object-contain", active && "bob")} />
                 {item.label}
               </Link>
             </li>

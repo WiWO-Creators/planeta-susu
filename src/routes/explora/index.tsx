@@ -17,7 +17,7 @@ function Explora() {
               key={t.slug}
               to="/explora/$tema"
               params={{ tema: t.topic }}
-              className="group lift overflow-hidden rounded-card border-[3px] border-ink bg-cloud shadow-chunky-sm"
+              className="group card-press overflow-hidden rounded-card border-[3px] border-ink bg-cloud shadow-chunky-sm"
             >
               <div className="relative">
                 <Photo src={t.cover} ratio="card" />

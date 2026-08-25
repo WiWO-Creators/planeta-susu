@@ -27,7 +27,7 @@ function Juegos() {
               key={g.id}
               to="/juegos/$id"
               params={{ id: g.id }}
-              className="lift overflow-hidden rounded-card border-[3px] border-ink bg-cloud shadow-chunky-sm"
+              className="card-press overflow-hidden rounded-card border-[3px] border-ink bg-cloud shadow-chunky-sm"
             >
               <div className="relative">
                 <Photo src={g.cover} ratio="card" />

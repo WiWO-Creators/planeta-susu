@@ -13,7 +13,7 @@ function Personajes() {
             key={c.slug}
             to="/personajes/$slug"
             params={{ slug: c.slug }}
-            className="group lift flex flex-col overflow-hidden rounded-card border-[3px] border-ink bg-cloud shadow-chunky-sm"
+            className="group card-press flex flex-col overflow-hidden rounded-card border-[3px] border-ink bg-cloud shadow-chunky-sm"
           >
             <div
               className="flex h-56 items-end justify-center px-2 pt-4 sm:h-64"

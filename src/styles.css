@@ -319,6 +319,81 @@
   }
 }
 
+@keyframes spark-pop {
+  0% {
+    transform: translate(-50%, -50%) scale(0.4) rotate(-12deg);
+    opacity: 1;
+  }
+  70% {
+    transform: translate(-50%, -70%) scale(1.15) rotate(8deg);
+    opacity: 1;
+  }
+  100% {
+    transform: translate(-50%, -90%) scale(0.4) rotate(20deg);
+    opacity: 0;
+  }
+}
+
+.spark-pop {
+  position: absolute;
+  width: 22px;
+  height: 22px;
+  margin: 0;
+  background: #ffd000;
+  clip-path: polygon(
+    50% 0%,
+    61% 35%,
+    98% 35%,
+    68% 57%,
+    79% 91%,
+    50% 70%,
+    21% 91%,
+    32% 57%,
+    2% 35%,
+    39% 35%
+  );
+  filter: drop-shadow(0 2px 0 #1f1408);
+  animation: spark-pop 0.65s ease-out forwards;
+}
+
+.sky-play {
+  background:
+    radial-gradient(ellipse at 20% 0%, #fff6d8 0%, transparent 42%),
+    linear-gradient(180deg, #7ec8ea 0%, #ffd86a 48%, #ffd000 100%);
+}
+
+.press:active {
+  transform: translateY(3px) scale(0.97);
+}
+
+.page-enter {
+  animation: rise-in 0.45s cubic-bezier(0.2, 0.9, 0.25, 1) both;
+}
+
+.nav-blob {
+  transition:
+    transform 180ms ease-out,
+    background-color 180ms ease-out;
+}
+.nav-blob:active {
+  transform: scale(0.9);
+}
+
+.card-press {
+  transition:
+    transform 180ms cubic-bezier(0.2, 0.9, 0.25, 1),
+    box-shadow 180ms ease-out;
+}
+.card-press:hover {
+  transform: translateY(-6px) rotate(-1deg);
+}
+.card-press:nth-child(even):hover {
+  transform: translateY(-6px) rotate(1deg);
+}
+.card-press:active {
+  transform: translateY(2px) scale(0.98);
+}
+
 @media (prefers-reduced-motion: reduce) {
   html {
     scroll-behavior: auto;
@@ -335,10 +410,13 @@
   .radar-sweep-fast,
   .pop-in,
   .stagger-in > *,
-  .radar-dot::before {
+  .radar-dot::before,
+  .spark-pop,
+  .page-enter {
     animation: none !important;
   }
-  .lift:hover {
+  .lift:hover,
+  .card-press:hover {
     transform: none;
   }
 }

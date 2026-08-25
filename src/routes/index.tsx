@@ -8,6 +8,7 @@ import { games } from "@/data/games";
 import { storyCover } from "@/data/stories";
 import { cn } from "@/lib/utils";
 import { Radar } from "@/components/play/Radar";
+import { SkyToys } from "@/components/play/Magic";
 
 export const Route = createFileRoute("/")({ component: Home });
 
@@ -16,8 +17,8 @@ const delays = [0, 1, 2, 3, 4] as const;
 function Home() {
   return (
     <main>
-      <section className="relative overflow-hidden border-b-[3px] border-ink bg-yellow">
-        <div className="pointer-events-none absolute inset-0 doodle-dots opacity-25" />
+      <section className="relative overflow-hidden border-b-[3px] border-ink sky-play">
+        <SkyToys />
         <div className="relative mx-auto max-w-5xl px-4 pb-6 pt-8 text-center sm:px-6 sm:pt-10">
           <img
             src="/brand/logo-ink.png"
@@ -25,14 +26,15 @@ function Home() {
             className="pop-in mx-auto w-full max-w-[12rem] sm:max-w-[16rem]"
           />
           <h1 className="mt-3 font-display text-4xl font-semibold sm:text-6xl">¿Jugamos?</h1>
+          <p className="mt-2 font-display text-lg sm:text-xl">Toca. Mira. Prueba.</p>
           <div className="mt-6 flex flex-wrap justify-center gap-3">
-            <Link to="/juegos" className={buttonVariants({ tone: "ink", size: "lg" })}>
+            <Link to="/juegos" className={cn(buttonVariants({ tone: "ink", size: "lg" }), "press min-w-36")}>
               Jugar
             </Link>
-            <Link to="/aventuras" className={buttonVariants({ tone: "gadu", size: "lg" })}>
+            <Link to="/aventuras" className={cn(buttonVariants({ tone: "gadu", size: "lg" }), "press min-w-36")}>
               Cuentos
             </Link>
-            <Link to="/juguetes" className={buttonVariants({ tone: "cream", size: "lg" })}>
+            <Link to="/juguetes" className={cn(buttonVariants({ tone: "cream", size: "lg" }), "press min-w-36")}>
               Radar
             </Link>
           </div>
@@ -41,10 +43,11 @@ function Home() {
           </div>
         </div>
         <div className="relative border-t-[3px] border-ink bg-cream">
+          <p className="pt-4 text-center font-display text-xl font-semibold">Toca un amigo</p>
           <div className="mx-auto flex max-w-5xl snap-x gap-3 overflow-x-auto px-4 py-4 sm:grid sm:grid-cols-5 sm:overflow-visible sm:px-6">
             {characters.map((c, i) => (
               <div key={c.slug} className="w-28 shrink-0 snap-center sm:w-auto">
-                <Figure slug={c.slug} delay={delays[i]} height="h-24 sm:h-32" label />
+                <Figure slug={c.slug} delay={delays[i]} height="h-28 sm:h-36" label />
               </div>
             ))}
           </div>
@@ -80,7 +83,7 @@ function Home() {
                   key={t.slug}
                   to="/explora/$tema"
                   params={{ tema: t.topic }}
-                  className="lift overflow-hidden rounded-card border-[3px] border-ink bg-cloud shadow-chunky-sm"
+                  className="card-press overflow-hidden rounded-card border-[3px] border-ink bg-cloud shadow-chunky-sm"
                 >
                   <div className="relative">
                     <Photo src={t.cover} ratio="square" />
@@ -118,7 +121,7 @@ function Door({
     <Link
       to={to}
       className={cn(
-        "lift overflow-hidden rounded-card border-[3px] border-ink shadow-chunky-sm",
+        "card-press overflow-hidden rounded-card border-[3px] border-ink shadow-chunky-sm",
         color,
       )}
     >

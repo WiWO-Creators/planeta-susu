@@ -1,82 +1,93 @@
 import { ChevronLeft, ChevronRight } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { characterMap } from "@/data/characters";
-import type { Story } from "@/data/stories";
+import { panelArt, type Story } from "@/data/stories";
 import { Button } from "@/components/ui/button";
 import { useProgress } from "@/store/progress";
-import { ding } from "@/lib/utils";
 import { cn } from "@/lib/utils";
-
-const bgClass: Record<Story["panels"][number]["bg"], string> = {
-  yellow: "bg-yellow text-ink",
-  cream: "bg-cream text-ink",
-  vector: "bg-vector text-cloud",
-  gadu: "bg-gadu text-cloud",
-  zizu: "bg-zizu text-ink",
-  margarel: "bg-margarel text-cloud",
-  susu: "bg-susu text-ink",
-  teal: "bg-teal text-cloud",
-  sky: "bg-sky text-ink",
-  ink: "bg-ink text-cream",
-};
 
 export function StoryReader({ story }: { story: Story }) {
   const [i, setI] = useState(0);
+  const [phase, setPhase] = useState<"on" | "off">("on");
+  const lock = useRef(false);
   const complete = useProgress((s) => s.complete);
-  const panel = story.panels[i];
+  const panel = story.panels[i]!;
   const who = panel.who ? characterMap[panel.who] : null;
   const last = i === story.panels.length - 1;
+  const art = panelArt(story.id, i);
 
   function go(next: number) {
     const n = Math.max(0, Math.min(story.panels.length - 1, next));
-    setI(n);
-    if (n === story.panels.length - 1) {
-      complete(`story:${story.id}`, 8, `cuento-${story.id}`, story.hosts[0]);
-      ding(true);
-    }
+    if (n === i || lock.current) return;
+    lock.current = true;
+    setPhase("off");
+    window.setTimeout(() => {
+      setI(n);
+      setPhase("on");
+      lock.current = false;
+      if (n === story.panels.length - 1) {
+        complete(`story:${story.id}`, 8, `cuento-${story.id}`, story.hosts[0]);
+      }
+    }, 280);
   }
+
+  useEffect(() => {
+    const next = panelArt(story.id, Math.min(i + 1, story.panels.length - 1));
+    const img = new Image();
+    img.src = next;
+  }, [i, story.id, story.panels.length]);
+
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "ArrowRight") go(i + 1);
+      if (e.key === "ArrowLeft") go(i - 1);
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [i]);
 
   return (
     <div>
-      <div
-        className={cn(
-          "relative overflow-hidden rounded-blob border-[3px] border-ink shadow-chunky-lg",
-          bgClass[panel.bg],
-        )}
-      >
-        <div className="flex min-h-[26rem] flex-col items-center gap-6 px-5 py-8 sm:flex-row sm:items-end sm:px-10">
-          {who ? (
-            <img
-              src={who.portrait}
-              alt={who.name}
-              className="h-56 w-auto object-contain object-bottom sm:h-80"
-            />
-          ) : (
-            <img
-              src="/characters/group-wave.webp"
-              alt=""
-              className="h-48 w-auto object-contain sm:h-64"
-            />
+      <article className="overflow-hidden rounded-card border-[3px] border-ink bg-cream shadow-chunky">
+        <div
+          className={cn(
+            "transition-opacity duration-500 ease-in-out",
+            phase === "on" ? "opacity-100" : "opacity-0",
           )}
-          <div className="relative max-w-md rounded-card border-[3px] border-ink bg-cloud/90 p-5 text-ink shadow-chunky-sm">
-            {who && !panel.narrator ? (
-              <p className="font-display text-sm font-semibold uppercase tracking-widest" style={{ color: who.color }}>
-                {who.name}
-              </p>
+        >
+          <div className="relative aspect-video overflow-hidden bg-cloud">
+            <img
+              src={art}
+              alt=""
+              className="h-full w-full object-cover object-center"
+            />
+          </div>
+          <div className="flex items-end gap-4 px-4 py-5 sm:gap-5 sm:px-6 sm:py-6">
+            {who ? (
+              <img
+                src={who.portrait}
+                alt={who.name}
+                className="h-24 w-auto shrink-0 object-contain object-bottom sm:h-32"
+              />
             ) : (
-              <p className="font-display text-sm font-semibold uppercase tracking-widest text-ink-soft">
-                Narrador
-              </p>
+              <img
+                src="/characters/susu.webp"
+                alt=""
+                className="h-24 w-auto shrink-0 object-contain object-bottom sm:h-32"
+              />
             )}
-            <p className="mt-2 font-display text-2xl font-medium leading-snug sm:text-3xl">
-              {panel.text}
-            </p>
-            <p className="mt-4 font-display text-sm tabular-nums text-ink-soft">
-              {i + 1} / {story.panels.length}
-            </p>
+            <div className="min-w-0 pb-1">
+              <p className="font-display text-sm font-semibold" style={who ? { color: who.color } : undefined}>
+                {who && !panel.narrator ? who.name : "Narrador"}
+              </p>
+              <p className="mt-1 font-display text-xl font-medium leading-snug sm:text-2xl">{panel.text}</p>
+              <p className="mt-3 font-display text-sm tabular-nums text-ink-soft">
+                {i + 1} / {story.panels.length}
+              </p>
+            </div>
           </div>
         </div>
-      </div>
+      </article>
       <div className="mt-5 flex items-center justify-between gap-3">
         <Button tone="cream" onClick={() => go(i - 1)} disabled={i === 0} aria-label="Viñeta anterior">
           <ChevronLeft className="size-5" /> Atrás
@@ -89,8 +100,8 @@ export function StoryReader({ story }: { story: Story }) {
               aria-label={`Viñeta ${idx + 1}`}
               onClick={() => go(idx)}
               className={cn(
-                "size-4 rounded-full border-2 border-ink transition-all sm:size-3.5",
-                idx === i ? "w-8 bg-ink sm:w-8" : "bg-cloud",
+                "h-3 rounded-full border-2 border-ink transition-all duration-300",
+                idx === i ? "w-7 bg-ink" : "w-3 bg-cloud",
               )}
             />
           ))}

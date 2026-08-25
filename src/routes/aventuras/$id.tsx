@@ -12,11 +12,11 @@ function StoryPage() {
   if (!story) throw notFound();
 
   return (
-    <main className="mx-auto max-w-5xl px-4 py-8 sm:px-6">
+    <main className="mx-auto max-w-4xl px-4 py-6 sm:px-6">
       <Link to="/aventuras" className="font-display text-sm font-semibold">
         ← Cuentos
       </Link>
-      <h1 className="mt-3 font-display text-4xl font-semibold sm:text-5xl">{story.title}</h1>
+      <h1 className="mt-3 font-display text-3xl font-semibold sm:text-4xl">{story.title}</h1>
       <div className="mt-6">
         <StoryReader story={story} />
       </div>

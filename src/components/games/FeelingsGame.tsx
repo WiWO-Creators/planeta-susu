@@ -1,13 +1,15 @@
 import { useMemo, useState } from "react";
 import { ArcadeHud, ArcadeStart, tone } from "./playkit";
 import { GameWin } from "./GameWin";
+import { Sticker } from "./Sticker";
+import { drawCloud, drawDrop, drawSun } from "./stickers";
 
 const FEELS = [
-  { id: "alegria", label: "alegría", color: "#ffd000", pose: "/characters/susu.webp", say: "¡Brillo!" },
-  { id: "calma", label: "calma", color: "#5579df", pose: "/characters/vector.webp", say: "Despacio." },
-  { id: "rabia", label: "rabia", color: "#e23b4a", pose: "/characters/gadu.webp", say: "¡Importa!" },
-  { id: "miedo", label: "miedo", color: "#6c3ce0", pose: "/characters/margarel.webp", say: "Un paso." },
-  { id: "triste", label: "tristeza", color: "#2ebe7a", pose: "/characters/zizu.webp", say: "Me siento cerca." },
+  { id: "alegria", label: "alegría", color: "#ffe27a", pose: "/characters/susu.webp", say: "¡Brillo!", draw: drawSun },
+  { id: "calma", label: "calma", color: "#c5d7ff", pose: "/characters/vector.webp", say: "Despacio.", draw: drawCloud },
+  { id: "rabia", label: "rabia", color: "#ffc4b8", pose: "/characters/gadu.webp", say: "¡Importa!", draw: drawSun },
+  { id: "miedo", label: "miedo", color: "#e3d4ff", pose: "/characters/margarel.webp", say: "Un paso.", draw: drawCloud },
+  { id: "triste", label: "tristeza", color: "#c8f5dc", pose: "/characters/zizu.webp", say: "Me siento cerca.", draw: drawDrop },
 ];
 
 export function FeelingsGame() {
@@ -65,9 +67,10 @@ export function FeelingsGame() {
             key={f.id}
             type="button"
             onClick={() => pick(f.id)}
-            className="min-h-14 rounded-2xl border-[3px] border-ink font-display font-semibold shadow-chunky-sm active:translate-y-1"
+            className="flex min-h-20 flex-col items-center justify-center rounded-2xl border-[3px] border-ink font-display font-semibold shadow-chunky-sm active:translate-y-1"
             style={{ background: f.color }}
           >
+            <Sticker draw={f.draw} size={48} />
             {f.label}
           </button>
         ))}

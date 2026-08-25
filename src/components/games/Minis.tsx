@@ -3,6 +3,8 @@ import { characters } from "@/data/characters";
 import { cn } from "@/lib/utils";
 import { GameWin } from "./GameWin";
 import { ArcadeHud, ArcadeStart, Playfield, tone } from "./playkit";
+import { Sticker } from "./Sticker";
+import { drawApple, drawBanana, drawBead, drawPlanet } from "./stickers";
 
 export function MemoryGame() {
   const [phase, setPhase] = useState<"start" | "play" | "win">("start");
@@ -98,7 +100,13 @@ export function MemoryGame() {
   );
 }
 
-const BEADS = ["#ffd000", "#6c3ce0", "#2ebe7a", "#ff5d8f", "#5579df"];
+const BEADS = [
+  { color: "#ffd000", name: "sol" },
+  { color: "#6c3ce0", name: "uva" },
+  { color: "#2ebe7a", name: "hoja" },
+  { color: "#ff5d8f", name: "chicle" },
+  { color: "#5579df", name: "cielo" },
+];
 
 export function PatternGame() {
   const [phase, setPhase] = useState<"start" | "play" | "win">("start");
@@ -108,8 +116,7 @@ export function PatternGame() {
     const b = BEADS[(lvl + 2) % BEADS.length]!;
     return lvl % 2 === 0 ? [a, b, a, b, a] : [a, a, b, a, a];
   }, [lvl]);
-  const next = lvl % 2 === 0 ? BEADS[(lvl + 2) % BEADS.length]! : BEADS[(lvl + 2) % BEADS.length]!;
-  const answer = lvl % 2 === 0 ? BEADS[lvl % BEADS.length]! : BEADS[(lvl + 2) % BEADS.length]!;
+  const answer = (lvl % 2 === 0 ? BEADS[lvl % BEADS.length]! : BEADS[(lvl + 2) % BEADS.length]!).color;
 
   function pick(color: string) {
     if (color !== answer) {
@@ -135,37 +142,38 @@ export function PatternGame() {
   return (
     <div>
       <ArcadeHud score={lvl * 15} extra={<span>Ronda {lvl + 1}/6</span>} />
-      <div className="mt-4 flex min-h-24 flex-wrap items-center justify-center gap-2 rounded-card border-[3px] border-ink bg-cloud p-4">
+      <div className="mt-4 flex min-h-28 flex-wrap items-center justify-center gap-1 rounded-card border-[3px] border-ink bg-cloud p-3">
+        <img src="/characters/gadu.webp" alt="" className="h-16 w-auto object-contain" />
         {pattern.map((c, i) => (
-          <span key={i} className="size-12 rounded-full border-[3px] border-ink sm:size-14" style={{ background: c }} />
+          <Sticker key={i} size={56} draw={(ctx, s) => drawBead(ctx, s * 2.2, c.color)} />
         ))}
-        <span className="flex size-12 items-center justify-center rounded-full border-[3px] border-dashed border-ink font-display text-2xl sm:size-14">
+        <span className="flex size-14 items-center justify-center rounded-full border-[3px] border-dashed border-ink font-display text-2xl">
           ?
         </span>
       </div>
       <div className="mt-4 grid grid-cols-5 gap-2">
         {BEADS.map((c) => (
           <button
-            key={c}
+            key={c.color}
             type="button"
-            aria-label="color"
-            onClick={() => pick(c)}
-            className="min-h-16 rounded-2xl border-[3px] border-ink shadow-chunky-sm active:translate-y-1"
-            style={{ background: c }}
-          />
+            aria-label={c.name}
+            onClick={() => pick(c.color)}
+            className="flex min-h-20 flex-col items-center justify-center rounded-2xl border-[3px] border-ink bg-cream shadow-chunky-sm active:translate-y-1"
+          >
+            <Sticker size={52} draw={(ctx, s) => drawBead(ctx, s * 2.2, c.color)} />
+          </button>
         ))}
       </div>
-      <p className="sr-only">respuesta {next}</p>
     </div>
   );
 }
 
 export function SimonGame() {
   const pads = [
-    { bg: "bg-yellow", f: 523 },
-    { bg: "bg-vector", f: 392 },
-    { bg: "bg-gadu", f: 659 },
-    { bg: "bg-margarel", f: 784 },
+    { bg: "bg-yellow", f: 523, who: "susu", src: "/characters/susu.webp" },
+    { bg: "bg-vector", f: 392, who: "vector", src: "/characters/vector.webp" },
+    { bg: "bg-gadu", f: 659, who: "gadu", src: "/characters/gadu.webp" },
+    { bg: "bg-margarel", f: 784, who: "margarel", src: "/characters/margarel.webp" },
   ];
   const [phase, setPhase] = useState<"start" | "play" | "win" | "lost">("start");
   const [seq, setSeq] = useState<number[]>([]);
@@ -232,11 +240,13 @@ export function SimonGame() {
             type="button"
             onClick={() => press(n)}
             className={cn(
-              "min-h-28 rounded-card border-[3px] border-ink shadow-chunky transition-transform sm:min-h-36",
+              "flex min-h-28 items-end justify-center overflow-hidden rounded-card border-[3px] border-ink shadow-chunky transition-transform sm:min-h-36",
               p.bg,
               lit === n && "scale-95 brightness-125",
             )}
-          />
+          >
+            <img src={p.src} alt="" className="h-24 w-auto object-contain object-bottom sm:h-28" />
+          </button>
         ))}
       </div>
     </div>
@@ -247,11 +257,9 @@ export function OddGame() {
   const [phase, setPhase] = useState<"start" | "play" | "win">("start");
   const [lvl, setLvl] = useState(0);
   const round = useMemo(() => {
-    const colors = ["#ffd000", "#5579df", "#2ebe7a", "#ff5d8f", "#6c3ce0"];
-    const main = colors[lvl % colors.length]!;
-    const odd = colors[(lvl + 2) % colors.length]!;
     const oddAt = Math.floor(Math.random() * 9);
-    return { main, odd, oddAt };
+    const apples = lvl % 2 === 0;
+    return { oddAt, apples };
   }, [lvl]);
 
   function tap(i: number) {
@@ -275,15 +283,26 @@ export function OddGame() {
     <div>
       <ArcadeHud score={lvl * 12} extra={<span>{lvl + 1}/8</span>} />
       <div className="mt-4 grid grid-cols-3 gap-3">
-        {Array.from({ length: 9 }, (_, i) => (
-          <button
-            key={i}
-            type="button"
-            onClick={() => tap(i)}
-            className="aspect-square rounded-card border-[3px] border-ink shadow-chunky-sm active:scale-95"
-            style={{ background: i === round.oddAt ? round.odd : round.main }}
-          />
-        ))}
+        {Array.from({ length: 9 }, (_, i) => {
+          const odd = i === round.oddAt;
+          const draw = round.apples
+            ? odd
+              ? drawBanana
+              : drawApple
+            : odd
+              ? drawApple
+              : (ctx: CanvasRenderingContext2D, s: number) => drawPlanet(ctx, s * 0.9, "#5579df", false);
+          return (
+            <button
+              key={i}
+              type="button"
+              onClick={() => tap(i)}
+              className="flex aspect-square items-center justify-center rounded-card border-[3px] border-ink bg-cream shadow-chunky-sm active:scale-95"
+            >
+              <Sticker draw={draw} size={88} />
+            </button>
+          );
+        })}
       </div>
     </div>
   );

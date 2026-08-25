@@ -8,10 +8,10 @@ import {
   cheer,
   drawParticles,
   fitCanvas,
-  roundRect,
   stepParticles,
   type Particle,
 } from "./playkit";
+import { drawBin, ITEM_DRAW } from "./stickers";
 import { GameWin } from "./GameWin";
 
 type Bin = "org" | "rec" | "otr";
@@ -279,19 +279,7 @@ function paint(ctx: CanvasRenderingContext2D, g: World, zizu: HTMLImageElement |
   const binH = Math.max(110, h * 0.22);
   const bw = w / 3;
   BINS.forEach((b, i) => {
-    ctx.fillStyle = b.color;
-    ctx.strokeStyle = "#1f1408";
-    ctx.lineWidth = 4;
-    roundRect(ctx, i * bw + 8, h - binH, bw - 16, binH + 8, 18);
-    ctx.fill();
-    ctx.stroke();
-    ctx.fillStyle = "rgba(255,255,255,0.18)";
-    roundRect(ctx, i * bw + 22, h - binH + 12, bw - 44, 18, 8);
-    ctx.fill();
-    ctx.fillStyle = b.id === "otr" ? "#fff6d8" : "#1f1408";
-    ctx.font = "700 18px Fredoka, Nunito, sans-serif";
-    ctx.textAlign = "center";
-    ctx.fillText(b.label, i * bw + bw / 2, h - 22);
+    drawBin(ctx, i * bw + 10, h - binH, bw - 20, binH + 6, b.color, b.label, b.id);
   });
 
   if (zizu && zizu.complete) {
@@ -307,20 +295,14 @@ function paint(ctx: CanvasRenderingContext2D, g: World, zizu: HTMLImageElement |
 
   const item = g.item;
   if (item) {
-    const s = 86;
     ctx.save();
     ctx.translate(item.x, item.y);
-    ctx.fillStyle = "#1f1408";
-    roundRect(ctx, -s / 2 - 3, -s / 2 - 3, s + 6, s + 6, 22);
-    ctx.fill();
-    ctx.fillStyle = item.kind.color;
-    roundRect(ctx, -s / 2, -s / 2, s, s, 20);
-    ctx.fill();
-    ctx.fillStyle = "#1f1408";
-    ctx.font = "700 15px Fredoka, Nunito, sans-serif";
+    const fn = ITEM_DRAW[item.kind.name];
+    if (fn) fn(ctx, 74);
+    ctx.font = "700 16px Fredoka, Nunito, sans-serif";
     ctx.textAlign = "center";
-    ctx.textBaseline = "middle";
-    ctx.fillText(item.kind.name, 0, 0);
+    ctx.fillStyle = "#1f1408";
+    ctx.fillText(item.kind.name, 0, 58);
     ctx.restore();
   }
 

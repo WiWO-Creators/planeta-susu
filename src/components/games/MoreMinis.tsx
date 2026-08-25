@@ -3,6 +3,18 @@ import { characters } from "@/data/characters";
 import { cn } from "@/lib/utils";
 import { GameWin } from "./GameWin";
 import {
+  drawBalloon,
+  drawBread,
+  drawCheese,
+  drawCloud,
+  drawDrop,
+  drawLettuce,
+  drawSea,
+  drawSun,
+  drawTomato,
+} from "./stickers";
+import { Sticker } from "./Sticker";
+import {
   ArcadeHud,
   ArcadeStart,
   beep,
@@ -99,10 +111,10 @@ export function SilhouetteGame() {
 }
 
 const STAGES = [
-  { id: "mar", label: "mar", color: "#5579df" },
-  { id: "sol", label: "sol", color: "#ffd000" },
-  { id: "nube", label: "nube", color: "#fff6d8" },
-  { id: "lluvia", label: "lluvia", color: "#5fade9" },
+  { id: "mar", label: "mar", color: "#8ec5ff", draw: drawSea },
+  { id: "sol", label: "sol", color: "#ffe27a", draw: drawSun },
+  { id: "nube", label: "nube", color: "#fff6d8", draw: drawCloud },
+  { id: "lluvia", label: "lluvia", color: "#b7e4ff", draw: drawDrop },
 ];
 
 export function CycleGame() {
@@ -145,21 +157,20 @@ export function CycleGame() {
       <ArcadeHud score={step * 25} extra={<span>Ahora: {STAGES[step]?.label}</span>} />
       <div className="relative mt-3 min-h-[22rem] overflow-hidden rounded-card border-[3px] border-ink bg-sky">
         <div className="absolute inset-x-0 bottom-0 h-[30%] bg-vector" />
-        <div className="absolute right-8 top-6 size-16 rounded-full border-[3px] border-ink bg-yellow" />
-        <div className="absolute left-10 top-10 h-14 w-28 rounded-full border-[3px] border-ink bg-cloud" />
-        <div className="relative grid h-full grid-cols-2 gap-4 p-6 sm:grid-cols-4">
+        <div className="relative grid h-full grid-cols-2 gap-4 p-5 sm:grid-cols-4">
           {STAGES.map((s, i) => (
             <button
               key={s.id}
               type="button"
               onClick={() => tap(i)}
               className={cn(
-                "mt-auto min-h-24 rounded-card border-[3px] border-ink font-display text-xl font-semibold shadow-chunky active:translate-y-1",
+                "mt-auto flex min-h-36 flex-col items-center justify-center gap-1 rounded-card border-[3px] border-ink font-display text-xl font-semibold shadow-chunky active:translate-y-1",
                 i === step ? "scale-105" : "opacity-70",
               )}
               style={{ background: s.color }}
             >
-              {i + 1}. {s.label}
+              <Sticker draw={s.draw} size={88} />
+              {s.label}
             </button>
           ))}
         </div>
@@ -442,20 +453,10 @@ function paintCount(ctx: CanvasRenderingContext2D, g: CountWorld) {
   ctx.fillStyle = sky;
   ctx.fillRect(0, 0, g.w, g.h);
   for (const b of g.balls) {
-    ctx.fillStyle = "#1f1408";
-    ctx.beginPath();
-    ctx.arc(b.x, b.y, b.r + 3, 0, Math.PI * 2);
-    ctx.fill();
-    ctx.fillStyle = b.color;
-    ctx.beginPath();
-    ctx.arc(b.x, b.y, b.r, 0, Math.PI * 2);
-    ctx.fill();
-    ctx.strokeStyle = "#1f1408";
-    ctx.lineWidth = 3;
-    ctx.beginPath();
-    ctx.moveTo(b.x, b.y + b.r);
-    ctx.lineTo(b.x, b.y + b.r + 18);
-    ctx.stroke();
+    ctx.save();
+    ctx.translate(b.x, b.y);
+    drawBalloon(ctx, b.r, b.color);
+    ctx.restore();
   }
   drawParticles(ctx, g.ps);
   ctx.font = "700 28px Fredoka, Nunito, sans-serif";
@@ -465,11 +466,11 @@ function paintCount(ctx: CanvasRenderingContext2D, g: CountWorld) {
 }
 
 const ING = [
-  { id: "pan", label: "pan", color: "#ea9e48" },
-  { id: "tomate", label: "tomate", color: "#d7655c" },
-  { id: "hoja", label: "hoja", color: "#2ebe7a" },
-  { id: "queso", label: "queso", color: "#ffd000" },
-];
+  { id: "pan", label: "pan", color: "#ea9e48", draw: drawBread },
+  { id: "tomate", label: "tomate", color: "#ffd8d4", draw: drawTomato },
+  { id: "hoja", label: "hoja", color: "#c8f5dc", draw: drawLettuce },
+  { id: "queso", label: "queso", color: "#ffe27a", draw: drawCheese },
+] as const;
 
 export function RecipeGame() {
   const [phase, setPhase] = useState<"start" | "play" | "win">("start");
@@ -522,14 +523,12 @@ export function RecipeGame() {
       <p className="mt-3 text-center font-display text-2xl font-semibold">
         Ahora: {order[placed.length]?.label}
       </p>
-      <div className="mt-3 flex min-h-40 flex-col items-center justify-end rounded-card border-[3px] border-ink bg-cream p-4">
+      <div className="mt-3 flex min-h-48 flex-col items-center justify-end rounded-card border-[3px] border-ink bg-cream p-4">
         {placed.map((id) => {
           const it = ING.find((x) => x.id === id)!;
-          return (
-            <div key={id} className="h-9 w-48 rounded-md border-[3px] border-ink" style={{ background: it.color }} />
-          );
+          return <Sticker key={id} draw={it.draw} size={96} />;
         })}
-        <p className="mt-2 font-display text-sm">plato</p>
+        <p className="mt-1 font-display text-sm">plato</p>
       </div>
       <div className="mt-3 grid grid-cols-2 gap-2">
         {ING.filter((x) => !placed.includes(x.id)).map((it) => (
@@ -537,9 +536,10 @@ export function RecipeGame() {
             key={it.id}
             type="button"
             onClick={() => tap(it.id)}
-            className="min-h-16 rounded-2xl border-[3px] border-ink font-display text-xl font-semibold shadow-chunky active:translate-y-1"
+            className="flex min-h-24 flex-col items-center justify-center rounded-2xl border-[3px] border-ink font-display text-xl font-semibold shadow-chunky active:translate-y-1"
             style={{ background: it.color }}
           >
+            <Sticker draw={it.draw} size={72} />
             {it.label}
           </button>
         ))}

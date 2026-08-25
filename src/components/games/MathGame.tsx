@@ -12,6 +12,7 @@ import {
   stepParticles,
   type Particle,
 } from "./playkit";
+import { drawPlanet } from "./stickers";
 import { GameWin } from "./GameWin";
 
 const HUES = ["#5579df", "#6c3ce0", "#ffd000", "#ff5d8f", "#2ebe7a", "#ea9e48"];
@@ -25,6 +26,7 @@ type Planet = {
   r: number;
   color: string;
   pop: number;
+  ring: boolean;
 };
 
 type World = {
@@ -50,6 +52,7 @@ function make(n: number, w: number, h: number): Planet[] {
       r,
       color: HUES[Math.floor(Math.random() * HUES.length)]!,
       pop: 0,
+      ring: Math.random() > 0.55,
     };
   });
 }
@@ -226,18 +229,10 @@ function paint(ctx: CanvasRenderingContext2D, g: World) {
     ctx.fill();
   }
   for (const p of g.planets) {
-    ctx.fillStyle = "#1f1408";
-    ctx.beginPath();
-    ctx.arc(p.x, p.y, p.r + 3, 0, Math.PI * 2);
-    ctx.fill();
-    ctx.fillStyle = p.color;
-    ctx.beginPath();
-    ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
-    ctx.fill();
-    ctx.fillStyle = "rgba(255,255,255,0.35)";
-    ctx.beginPath();
-    ctx.arc(p.x - p.r * 0.3, p.y - p.r * 0.3, p.r * 0.25, 0, Math.PI * 2);
-    ctx.fill();
+    ctx.save();
+    ctx.translate(p.x, p.y);
+    drawPlanet(ctx, p.r, p.color, p.ring);
+    ctx.restore();
   }
   ctx.fillStyle = "#ffd000";
   ctx.strokeStyle = "#1f1408";

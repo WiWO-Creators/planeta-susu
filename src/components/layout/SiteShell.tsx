@@ -3,6 +3,7 @@ import { Flame, Menu, Sparkles, X } from "lucide-react";
 import { useEffect, useState, type ReactNode } from "react";
 import { Logo } from "@/components/brand/Logo";
 import { SparkleField, PageEnter } from "@/components/play/Magic";
+import { HiBuddy } from "@/components/play/HiBuddy";
 import { nav } from "@/data/nav";
 import { BRAND } from "@/data/brand";
 import { characters } from "@/data/characters";
@@ -28,6 +29,7 @@ export function SiteShell({ children }: { children: ReactNode }) {
       </a>
       <Header />
       <SparkleField />
+      <HiBuddy />
       <div id="contenido" className="flex-1 pb-24 md:pb-0">
         <PageEnter key={pathname}>{children}</PageEnter>
       </div>
@@ -48,7 +50,7 @@ function Header() {
   }, [pathname]);
 
   return (
-    <header className="sticky top-0 z-40 border-b-[3px] border-ink bg-cream/95 backdrop-blur-md">
+    <header className="sticky top-0 z-40 border-b-[3px] border-ink bg-yellow/90 backdrop-blur-md">
       <div className="mx-auto flex h-16 max-w-6xl items-center gap-3 px-4 sm:h-[4.5rem] sm:px-6">
         <Logo />
         <nav className="ml-4 hidden items-center gap-1 lg:flex" aria-label="Principal">

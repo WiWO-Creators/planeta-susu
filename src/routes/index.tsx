@@ -6,7 +6,6 @@ import { characters, characterMap, type CharacterSlug } from "@/data/characters"
 import { territories } from "@/data/territories";
 import { cn } from "@/lib/utils";
 import { Radar } from "@/components/play/Radar";
-import { SkyToys } from "@/components/play/Magic";
 
 export const Route = createFileRoute("/")({ component: Home });
 
@@ -16,7 +15,6 @@ function Home() {
   return (
     <main>
       <section className="relative overflow-hidden border-b-[3px] border-ink sky-play">
-        <SkyToys />
         <div className="relative mx-auto max-w-5xl px-4 pb-6 pt-8 text-center sm:px-6 sm:pt-10">
           <img
             src="/brand/logo-ink.png"

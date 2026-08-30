@@ -29,8 +29,9 @@ export function Figure({
     <img
       src={c.portrait}
       alt={c.name}
+      draggable={false}
       className={cn(
-        "w-auto object-contain object-bottom drop-shadow-soft",
+        "pointer-events-none w-auto object-contain object-bottom drop-shadow-soft",
         height,
         animate && "bob",
         animate && bobDelay[delay],
@@ -52,15 +53,10 @@ export function Figure({
     <Link
       to="/personajes/$slug"
       params={{ slug }}
-      className="group relative flex flex-col items-center gap-1 outline-none"
+      className="flex flex-col items-center gap-1 outline-none"
       aria-label={`Conocer a ${c.name}`}
     >
-      <span className="pointer-events-none absolute -top-2 left-1/2 z-10 hidden w-max max-w-[9rem] -translate-x-1/2 -translate-y-full group-hover:block group-focus-visible:block">
-        <span className="bubble text-xs sm:text-sm">{c.tagline}</span>
-      </span>
-      <span className="transition-transform duration-200 ease-out group-hover:-translate-y-2 group-active:scale-[0.96]">
-        {img}
-      </span>
+      {img}
       {label ? (
         <span className="font-display text-sm font-semibold sm:text-base">{c.name}</span>
       ) : null}

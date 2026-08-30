@@ -3,7 +3,6 @@ import { PageHero } from "@/components/play/PageHero";
 import { characterMap } from "@/data/characters";
 import { games } from "@/data/games";
 import { useProgress } from "@/store/progress";
-import { beep } from "@/components/games/playkit";
 import { Sparkles } from "lucide-react";
 
 export const Route = createFileRoute("/juegos/")({ component: Juegos });
@@ -24,8 +23,7 @@ function Juegos() {
                 key={g.id}
                 to="/juegos/$id"
                 params={{ id: g.id }}
-                onClick={() => beep(560, 70)}
-                className="card-press overflow-hidden rounded-card border-[3px] border-ink bg-cloud shadow-chunky-sm"
+                className="overflow-hidden rounded-card border-[3px] border-ink bg-cloud shadow-chunky-sm"
               >
                 <div
                   className="relative flex h-40 items-end justify-center sm:h-48"

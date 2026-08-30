@@ -2,13 +2,11 @@ import { Link, useRouterState } from "@tanstack/react-router";
 import { Flame, Sparkles } from "lucide-react";
 import { useEffect, type ReactNode } from "react";
 import { Logo } from "@/components/brand/Logo";
-import { SparkleField, PageEnter } from "@/components/play/Magic";
-import { HiBuddy } from "@/components/play/HiBuddy";
+import { SparkleField } from "@/components/play/Magic";
 import { BRAND } from "@/data/brand";
 import { characters } from "@/data/characters";
 import { rankFor } from "@/data/ranks";
 import { useProgress } from "@/store/progress";
-import { beep } from "@/components/games/playkit";
 import { cn } from "@/lib/utils";
 
 const PLAY_FOOTER = ["/padres", "/sobre", "/privacidad", "/contacto", "/accesibilidad"];
@@ -34,9 +32,8 @@ export function SiteShell({ children }: { children: ReactNode }) {
       </a>
       <Hud />
       <SparkleField />
-      <HiBuddy />
-      <div id="contenido" className="flex-1 pb-24">
-        <PageEnter key={pathname}>{children}</PageEnter>
+      <div id="contenido" className="flex-1 pb-28">
+        {children}
       </div>
       {showFooter ? <Footer /> : null}
       <GameDock />
@@ -96,7 +93,7 @@ function GameDock() {
   ] as const;
   return (
     <nav
-      className="fixed inset-x-0 bottom-0 z-40 border-t-[3px] border-ink bg-cream pb-[env(safe-area-inset-bottom)]"
+      className="fixed inset-x-0 bottom-0 z-50 border-t-[3px] border-ink bg-cream pb-[env(safe-area-inset-bottom)]"
       aria-label="Juego"
     >
       <ul className="mx-auto grid max-w-2xl grid-cols-5 px-1 py-1">
@@ -109,9 +106,8 @@ function GameDock() {
             <li key={item.to}>
               <Link
                 to={item.to}
-                onClick={() => beep(480, 50)}
                 className={cn(
-                  "nav-blob flex min-h-16 flex-col items-center justify-center gap-0.5 rounded-2xl font-display text-[11px] font-semibold sm:min-h-[4.25rem] sm:text-sm",
+                  "flex min-h-[4.5rem] flex-col items-center justify-center gap-0.5 rounded-2xl font-display text-xs font-semibold sm:text-sm",
                   active ? "bg-yellow text-ink" : "text-ink-soft",
                 )}
               >

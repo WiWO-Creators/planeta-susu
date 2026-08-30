@@ -4,7 +4,6 @@ import { PageHero } from "@/components/play/PageHero";
 import { characterMap } from "@/data/characters";
 import { stories, storyCover } from "@/data/stories";
 import { useProgress } from "@/store/progress";
-import { beep } from "@/components/games/playkit";
 
 export const Route = createFileRoute("/aventuras/")({ component: Aventuras });
 
@@ -23,8 +22,7 @@ function Aventuras() {
                 key={s.id}
                 to="/aventuras/$id"
                 params={{ id: s.id }}
-                onClick={() => beep(560, 70)}
-                className="card-press overflow-hidden rounded-card border-[3px] border-ink bg-cloud shadow-chunky-sm"
+                className="overflow-hidden rounded-card border-[3px] border-ink bg-cloud shadow-chunky-sm"
               >
                 <div className="relative">
                   <Photo src={storyCover[s.id] ?? host.portrait} ratio="video" />

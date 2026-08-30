@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Link } from "@tanstack/react-router";
+import { Link, useRouterState } from "@tanstack/react-router";
 import { beep } from "@/components/games/playkit";
 
 const LINES = [
@@ -10,9 +10,11 @@ const LINES = [
 ];
 
 export function HiBuddy() {
+  const pathname = useRouterState({ select: (s) => s.location.pathname });
   const [i, setI] = useState(0);
   const [open, setOpen] = useState(true);
   const line = LINES[i % LINES.length]!;
+  if (pathname.startsWith("/juegos/") || pathname.startsWith("/aventuras/")) return null;
 
   return (
     <div className="pointer-events-none fixed bottom-24 right-3 z-30 hidden flex-col items-end gap-2 sm:bottom-6 md:flex">

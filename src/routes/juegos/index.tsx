@@ -1,5 +1,4 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { Photo } from "@/components/ui/photo";
 import { PageHero } from "@/components/play/PageHero";
 import { characterMap } from "@/data/characters";
 import { games } from "@/data/games";
@@ -13,7 +12,7 @@ function Juegos() {
   const won = games.filter((g) => completed.includes(`game:${g.id}`)).length;
   return (
     <main>
-      <PageHero title="Jugar" scene="/scenes/fiesta-estrellas.jpg" who="gadu" kicker={`${won}/${games.length} logrados`} />
+      <PageHero title="Jugar" who="gadu" kicker={`${won}/${games.length} logrados`} />
       <div className="mx-auto max-w-6xl px-4 py-8 sm:px-6">
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {games.map((g) => {
@@ -26,12 +25,11 @@ function Juegos() {
                 params={{ id: g.id }}
                 className="card-press overflow-hidden rounded-card border-[3px] border-ink bg-cloud shadow-chunky-sm"
               >
-                <div className="relative">
-                  <Photo src={g.cover} ratio="card" />
+                <div className="relative flex h-44 items-end justify-center sm:h-52" style={{ background: `${host.color}40` }}>
                   <img
                     src={host.portrait}
                     alt=""
-                    className="absolute bottom-0 right-1 h-24 w-auto object-contain object-bottom sm:h-28"
+                    className="h-[92%] w-auto object-contain object-bottom"
                   />
                   <span className="absolute left-2 bottom-2 rounded-full border-[3px] border-ink bg-yellow px-3 py-1 font-display text-sm font-semibold">
                     ¡Toca!

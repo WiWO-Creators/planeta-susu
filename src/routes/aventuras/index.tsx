@@ -11,7 +11,7 @@ function Aventuras() {
   const completed = useProgress((s) => s.completed);
   return (
     <main>
-      <PageHero title="Cuentos" scene="/scenes/grupo-lee.jpg" who="margarel" kicker="Para leer juntos" />
+      <PageHero title="Cuentos" who="margarel" kicker="Toca un cuento" />
       <div className="mx-auto max-w-6xl px-4 py-8 sm:px-6">
         <div className="grid gap-4 sm:grid-cols-2">
           {stories.map((s) => {
@@ -25,7 +25,12 @@ function Aventuras() {
                 className="card-press overflow-hidden rounded-card border-[3px] border-ink bg-cloud shadow-chunky-sm"
               >
                 <div className="relative">
-                  <Photo src={storyCover[s.id] ?? host.portrait} ratio="card" />
+                  <Photo src={storyCover[s.id] ?? host.portrait} ratio="video" />
+                  <img
+                    src={host.portrait}
+                    alt=""
+                    className="absolute bottom-0 right-2 h-24 w-auto object-contain object-bottom sm:h-28"
+                  />
                   <span className="absolute left-2 bottom-2 rounded-full border-[3px] border-ink bg-yellow px-3 py-1 font-display text-sm font-semibold">
                     Leer
                   </span>

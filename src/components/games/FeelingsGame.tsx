@@ -58,7 +58,7 @@ export function FeelingsGame() {
     <div>
       <ArcadeHud score={score * 15} extra={<span>{i + 1}/8</span>} />
       <div className="mt-3 overflow-hidden rounded-card border-[3px] border-ink p-4 text-center" style={{ background: round.color }}>
-        <img src={round.pose} alt="" className="mx-auto h-40 bob object-contain sm:h-48" />
+        <img src={round.pose} alt="" className="mx-auto h-48 bob object-contain sm:h-56" />
         <p className="mt-2 font-display text-2xl font-semibold">«{round.say}»</p>
       </div>
       <div className="mt-3 grid grid-cols-2 gap-2 sm:grid-cols-5">
@@ -67,7 +67,7 @@ export function FeelingsGame() {
             key={f.id}
             type="button"
             onClick={() => pick(f.id)}
-            className="flex min-h-20 flex-col items-center justify-center rounded-2xl border-[3px] border-ink font-display font-semibold shadow-chunky-sm active:translate-y-1"
+            className="flex min-h-24 flex-col items-center justify-center rounded-2xl border-[3px] border-ink font-display text-lg font-semibold shadow-chunky-sm active:translate-y-1"
             style={{ background: f.color }}
           >
             <img src={f.icon} alt="" className="h-10 w-10 object-contain" />

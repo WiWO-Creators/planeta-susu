@@ -158,9 +158,9 @@ export function ArcadeStart({
         <img src={c.portrait} alt="" className="h-32 w-auto bob object-contain sm:h-40" />
       )}
       <h2 className="mt-3 font-display text-3xl font-semibold sm:text-4xl">{title}</h2>
-      <p className="mt-2 max-w-sm text-lg">{how}</p>
+      <p className="bubble mt-3 max-w-sm text-lg">{how}</p>
       <Button
-        className="mt-6"
+        className="mt-6 min-h-16 min-w-48 text-2xl"
         tone={
           who === "vector"
             ? "vector"

@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { ArcadeStart, tone } from "./playkit";
 import { GameWin } from "./GameWin";
 import { cn } from "@/lib/utils";
+import { ART } from "@/data/gameArt";
 
 type Dir = "U" | "D" | "L" | "R";
 type Cell = { x: number; y: number };
@@ -179,7 +180,9 @@ export function CodeGame() {
                     className={cn("h-[90%] w-auto object-contain transition-transform", bump && "rotate-12")}
                   />
                 ) : goal ? (
-                  <span className="size-4 rounded-full bg-yellow border-2 border-ink" />
+                  <span className="inline-block">
+                    <img src={ART.bread} alt="sándwich" className="h-8 w-8 object-contain sm:h-10 sm:w-10" />
+                  </span>
                 ) : null}
               </div>
             );
@@ -227,7 +230,7 @@ function Pad({ onClick, label, children }: { onClick: () => void; label: string;
       type="button"
       aria-label={label}
       onClick={onClick}
-      className="flex size-14 items-center justify-center rounded-2xl border-[3px] border-ink bg-yellow shadow-chunky-sm active:translate-y-1"
+      className="flex size-16 items-center justify-center rounded-2xl border-[3px] border-ink bg-yellow shadow-chunky-sm active:translate-y-1 sm:size-[4.5rem]"
     >
       {children}
     </button>

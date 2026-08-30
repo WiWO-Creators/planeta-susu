@@ -1,17 +1,22 @@
 import { Link, useRouterState } from "@tanstack/react-router";
-import { Flame, Menu, Sparkles, X } from "lucide-react";
-import { useEffect, useState, type ReactNode } from "react";
+import { Flame, Sparkles } from "lucide-react";
+import { useEffect, type ReactNode } from "react";
 import { Logo } from "@/components/brand/Logo";
 import { SparkleField, PageEnter } from "@/components/play/Magic";
 import { HiBuddy } from "@/components/play/HiBuddy";
-import { nav } from "@/data/nav";
 import { BRAND } from "@/data/brand";
 import { characters } from "@/data/characters";
+import { rankFor } from "@/data/ranks";
 import { useProgress } from "@/store/progress";
+import { beep } from "@/components/games/playkit";
 import { cn } from "@/lib/utils";
+
+const PLAY_FOOTER = ["/padres", "/sobre", "/privacidad", "/contacto", "/accesibilidad"];
 
 export function SiteShell({ children }: { children: ReactNode }) {
   const pathname = useRouterState({ select: (s) => s.location.pathname });
+  const showFooter = PLAY_FOOTER.some((p) => pathname === p || pathname.startsWith(`${p}/`));
+
   useEffect(() => {
     void Promise.resolve(useProgress.persist.rehydrate()).then(() => {
       useProgress.getState().checkin();
@@ -27,57 +32,33 @@ export function SiteShell({ children }: { children: ReactNode }) {
       >
         Saltar al contenido
       </a>
-      <Header />
+      <Hud />
       <SparkleField />
       <HiBuddy />
-      <div id="contenido" className="flex-1 pb-24 md:pb-0">
+      <div id="contenido" className="flex-1 pb-24">
         <PageEnter key={pathname}>{children}</PageEnter>
       </div>
-      <Footer />
-      <BottomNav />
+      {showFooter ? <Footer /> : null}
+      <GameDock />
     </div>
   );
 }
 
-function Header() {
-  const pathname = useRouterState({ select: (s) => s.location.pathname });
+function Hud() {
   const stars = useProgress((s) => s.stars);
   const streak = useProgress((s) => s.streak);
-  const [open, setOpen] = useState(false);
-
-  useEffect(() => {
-    setOpen(false);
-  }, [pathname]);
+  const rank = rankFor(stars).current.name;
 
   return (
-    <header className="sticky top-0 z-40 border-b-[3px] border-ink bg-yellow/90 backdrop-blur-md">
-      <div className="mx-auto flex h-16 max-w-6xl items-center gap-3 px-4 sm:h-[4.5rem] sm:px-6">
+    <header className="sticky top-0 z-40 border-b-[3px] border-ink bg-yellow">
+      <div className="mx-auto flex h-14 max-w-6xl items-center gap-2 px-3 sm:h-16 sm:px-6">
         <Logo />
-        <nav className="ml-4 hidden items-center gap-1 lg:flex" aria-label="Principal">
-          {nav.slice(1).map((item) => {
-            const active =
-              item.to === "/"
-                ? pathname === "/"
-                : pathname === item.to || pathname.startsWith(`${item.to}/`);
-            return (
-              <Link
-                key={item.to}
-                to={item.to}
-                className={cn(
-                  "rounded-full px-3 py-2 font-display text-sm font-semibold nav-blob",
-                  active ? "bg-yellow text-ink" : "text-ink-soft hover:bg-yellow/50 hover:text-ink",
-                )}
-              >
-                {item.label}
-              </Link>
-            );
-          })}
-        </nav>
+        <p className="hidden font-display text-sm font-semibold sm:block">{rank}</p>
         <div className="ml-auto flex items-center gap-2">
           {streak > 1 ? (
             <Link
               to="/misiones"
-              className="hidden min-h-10 items-center gap-1 rounded-full border-[3px] border-ink bg-orange px-3 font-display text-sm font-semibold sm:inline-flex"
+              className="inline-flex min-h-10 items-center gap-1 rounded-full border-[3px] border-ink bg-orange px-2.5 font-display text-sm font-semibold"
               aria-label={`Racha de ${streak} días`}
             >
               <Flame className="size-4" strokeWidth={2.4} />
@@ -86,58 +67,39 @@ function Header() {
           ) : null}
           <Link
             to="/album"
-            className="chunky-sm inline-flex min-h-10 items-center gap-1.5 rounded-full bg-yellow px-3 font-display text-sm font-semibold"
-            aria-label={`${stars} estrellas conseguidas`}
+            className="inline-flex min-h-10 items-center gap-1.5 rounded-full border-[3px] border-ink bg-cream px-3 font-display text-sm font-semibold shadow-chunky-sm"
+            aria-label={`${stars} estrellas`}
           >
             <Sparkles className="size-4" strokeWidth={2.4} />
             <span className="tabular-nums">{stars}</span>
           </Link>
-          <button
-            type="button"
-            className="inline-flex size-11 items-center justify-center rounded-full border-[3px] border-ink bg-cloud lg:hidden"
-            aria-expanded={open}
-            aria-label={open ? "Cerrar menú" : "Abrir menú"}
-            onClick={() => setOpen((v) => !v)}
+          <Link
+            to="/padres"
+            className="hidden min-h-10 items-center rounded-full px-2 font-display text-xs font-semibold text-ink-soft sm:inline-flex"
           >
-            {open ? <X className="size-5" /> : <Menu className="size-5" />}
-          </button>
+            Grandes
+          </Link>
         </div>
       </div>
-      {open ? (
-        <nav className="border-t-[3px] border-ink bg-cloud px-4 py-3 lg:hidden" aria-label="Móvil">
-          <ul className="grid gap-1">
-            {nav.map((item) => (
-              <li key={item.to}>
-                <Link
-                  to={item.to}
-                  className="flex min-h-12 items-center rounded-2xl px-3 font-display text-lg font-semibold hover:bg-cream"
-                >
-                  {item.label}
-                </Link>
-              </li>
-            ))}
-          </ul>
-        </nav>
-      ) : null}
     </header>
   );
 }
 
-function BottomNav() {
+function GameDock() {
   const pathname = useRouterState({ select: (s) => s.location.pathname });
   const items = [
     { to: "/", label: "Casa", face: "/characters/susu.webp" },
-    { to: "/explora", label: "Explora", face: "/characters/zizu.webp" },
     { to: "/juegos", label: "Jugar", face: "/characters/gadu.webp" },
+    { to: "/aventuras", label: "Cuentos", face: "/characters/margarel.webp" },
+    { to: "/explora", label: "Mundo", face: "/characters/zizu.webp" },
     { to: "/personajes", label: "Amigos", face: "/characters/vector.webp" },
-    { to: "/padres", label: "Grandes", face: "/characters/margarel.webp" },
   ] as const;
   return (
     <nav
-      className="fixed inset-x-0 bottom-0 z-40 border-t-[3px] border-ink bg-cream/95 pb-[env(safe-area-inset-bottom)] backdrop-blur-md md:hidden"
-      aria-label="Inferior"
+      className="fixed inset-x-0 bottom-0 z-40 border-t-[3px] border-ink bg-cream pb-[env(safe-area-inset-bottom)]"
+      aria-label="Juego"
     >
-      <ul className="grid grid-cols-5 px-1 py-1">
+      <ul className="mx-auto grid max-w-2xl grid-cols-5 px-1 py-1">
         {items.map((item) => {
           const active =
             item.to === "/"
@@ -147,12 +109,13 @@ function BottomNav() {
             <li key={item.to}>
               <Link
                 to={item.to}
+                onClick={() => beep(480, 50)}
                 className={cn(
-                  "nav-blob flex min-h-16 flex-col items-center justify-center gap-0.5 rounded-2xl font-display text-[11px] font-semibold",
+                  "nav-blob flex min-h-16 flex-col items-center justify-center gap-0.5 rounded-2xl font-display text-[11px] font-semibold sm:min-h-[4.25rem] sm:text-sm",
                   active ? "bg-yellow text-ink" : "text-ink-soft",
                 )}
               >
-                <img src={item.face} alt="" className={cn("h-8 w-auto object-contain", active && "bob")} />
+                <img src={item.face} alt="" className={cn("h-9 w-auto object-contain sm:h-10", active && "bob")} />
                 {item.label}
               </Link>
             </li>
@@ -166,55 +129,14 @@ function BottomNav() {
 function Footer() {
   return (
     <footer className="relative overflow-hidden border-t-[3px] border-ink bg-ink text-cream">
-      <div className="pointer-events-none absolute inset-0 opacity-20 pattern-chars mix-blend-screen" />
-      <div className="relative mx-auto grid max-w-6xl gap-8 px-4 py-12 sm:px-6 md:grid-cols-4">
-        <div className="md:col-span-2">
+      <div className="relative mx-auto grid max-w-6xl gap-8 px-4 py-10 sm:px-6 md:grid-cols-3">
+        <div>
           <Logo variant="white" />
           <p className="mt-4 max-w-md text-base text-cream/80">
             {BRAND.tagline}
             <br />
             {BRAND.signature}
           </p>
-          <div className="mt-5 flex items-end">
-            {characters.map((c) => (
-              <img key={c.slug} src={c.portrait} alt="" className="h-14 w-auto object-contain object-bottom" />
-            ))}
-          </div>
-        </div>
-        <div>
-          <p className="font-display text-sm font-semibold uppercase tracking-widest text-yellow">Explorar</p>
-          <ul className="mt-3 space-y-2 text-sm">
-            <li>
-              <Link to="/explora" className="hover:text-yellow">
-                Territorios
-              </Link>
-            </li>
-            <li>
-              <Link to="/juegos" className="hover:text-yellow">
-                Juegos
-              </Link>
-            </li>
-            <li>
-              <Link to="/misiones" className="hover:text-yellow">
-                Misiones
-              </Link>
-            </li>
-            <li>
-              <Link to="/personajes" className="hover:text-yellow">
-                Tripulación
-              </Link>
-            </li>
-            <li>
-              <Link to="/juguetes" className="hover:text-yellow">
-                Taller de la nave
-              </Link>
-            </li>
-            <li>
-              <Link to="/preguntas" className="hover:text-yellow">
-                Grandes preguntas
-              </Link>
-            </li>
-          </ul>
         </div>
         <div>
           <p className="font-display text-sm font-semibold uppercase tracking-widest text-yellow">Confianza</p>
@@ -230,11 +152,6 @@ function Footer() {
               </Link>
             </li>
             <li>
-              <Link to="/accesibilidad" className="hover:text-yellow">
-                Accesibilidad
-              </Link>
-            </li>
-            <li>
               <Link to="/privacidad" className="hover:text-yellow">
                 Privacidad
               </Link>
@@ -246,11 +163,12 @@ function Footer() {
             </li>
           </ul>
         </div>
+        <div className="flex items-end">
+          {characters.map((c) => (
+            <img key={c.slug} src={c.portrait} alt="" className="h-14 w-auto object-contain object-bottom" />
+          ))}
+        </div>
       </div>
-      <p className="relative border-t border-cream/15 px-4 py-4 text-center text-xs text-cream/55">
-        Contenido para disfrutar con curiosidad y, cuando una actividad lo indique, con acompañamiento
-        de una persona adulta. {BRAND.signature} {BRAND.close}
-      </p>
     </footer>
   );
 }

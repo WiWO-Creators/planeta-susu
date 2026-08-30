@@ -7,7 +7,7 @@ export const Route = createFileRoute("/personajes/")({ component: Personajes });
 function Personajes() {
   return (
     <main>
-      <PageHero title="Toca un amigo" scene="/scenes/nave-interior.jpg" who="susu" kicker="La tripulación" />
+      <PageHero title="Toca un amigo" who="susu" kicker="La tripulación" />
       <div className="mx-auto max-w-6xl px-4 py-8 sm:px-6">
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-5">
           {characters.map((c) => (

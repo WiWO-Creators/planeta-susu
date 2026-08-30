@@ -2,6 +2,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { PageHero } from "@/components/play/PageHero";
 import { characterMap } from "@/data/characters";
 import { territories } from "@/data/territories";
+import { beep } from "@/components/games/playkit";
 
 export const Route = createFileRoute("/explora/")({ component: Explora });
 
@@ -18,6 +19,7 @@ function Explora() {
                 key={t.slug}
                 to="/explora/$tema"
                 params={{ tema: t.topic }}
+                onClick={() => beep(560, 70)}
                 className="group card-press overflow-hidden rounded-card border-[3px] border-ink bg-cloud shadow-chunky-sm"
               >
                 <div className="relative flex h-48 items-end justify-center sm:h-56" style={{ background: `${host.color}40` }}>

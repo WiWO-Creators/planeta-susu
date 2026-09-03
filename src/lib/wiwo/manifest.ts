@@ -222,6 +222,11 @@ export function buildManifest(
       name: BRAND.name,
       url: origin,
       language: "es",
+      // Lo leen niños, y el orquestador tiene que saberlo para mirar aparte lo
+      // que se publica acá. Lo declara el sitio y no el orquestador porque es
+      // una propiedad de este sitio: quien lo lea después no tiene que
+      // averiguarlo por el nombre del dominio.
+      audience: "kids",
     },
     capabilities: {
       articles: true,

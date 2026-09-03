@@ -1,21 +1,42 @@
 import { createFileRoute, Link, notFound } from "@tanstack/react-router";
 import { Photo } from "@/components/ui/photo";
-import { getReading, KIND_LABEL } from "@/data/readings";
+import {
+  KIND_LABEL,
+  articleBlocks,
+  articleHost,
+  articleImage,
+  articleKicker,
+  articleMinutes,
+  articleReadingKind,
+  articleSlug,
+  getArticleBySlug,
+} from "@/data/catalog";
+import { getArticles } from "@/lib/articles";
 import { characterMap } from "@/data/characters";
+import { blockText, blocksOfType, firstBlockOfType } from "@/lib/blocks";
 import { Speech } from "@/components/characters/Figure";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { useProgress } from "@/store/progress";
 import { cn } from "@/lib/utils";
 
-export const Route = createFileRoute("/leer/$id")({ component: ReadingPage });
+export const Route = createFileRoute("/leer/$id")({
+  loader: () => getArticles(),
+  component: ReadingPage,
+});
 
 function ReadingPage() {
   const { id } = Route.useParams();
-  const reading = getReading(id);
+  const ARTICLES = Route.useLoaderData();
+  const reading = getArticleBySlug(ARTICLES, "leer", id);
   if (!reading) throw notFound();
-  const host = characterMap[reading.host];
+  const anfitrion = articleHost(reading);
+  const host = characterMap[anfitrion];
+  const kind = articleReadingKind(reading);
+  const slug = articleSlug(reading);
+  const bloques = articleBlocks(reading);
+  const paraCasa = firstBlockOfType(bloques, "para-casa");
   const complete = useProgress((s) => s.complete);
-  const done = useProgress((s) => s.has(`read:${reading.id}`));
+  const done = useProgress((s) => s.has(`read:${slug}`));
 
   return (
     <main className="mx-auto max-w-3xl px-4 py-10 sm:px-6">
@@ -23,39 +44,39 @@ function ReadingPage() {
         ← Biblioteca del patio
       </Link>
       <div className="mt-5 overflow-hidden rounded-blob border-[3px] border-ink shadow-chunky">
-        <Photo src={reading.cover} alt="" ratio="wide" />
+        <Photo src={articleImage(reading).url} alt="" ratio="wide" />
       </div>
       <p className="mt-6 font-display text-sm font-semibold uppercase tracking-widest text-ink-soft">
-        {KIND_LABEL[reading.kind]} · {reading.minutes} min · con {host.name}
+        {KIND_LABEL[kind]} · {articleMinutes(reading)} min · con {host.name}
       </p>
       <h1 className="mt-2 font-display text-4xl font-semibold sm:text-5xl">{reading.title}</h1>
       <div className="mt-6">
-        <Speech who={reading.host}>{reading.kicker}. Léelo despacio. Las orejas grandes sirven.</Speech>
+        <Speech who={anfitrion}>{articleKicker(reading)}. Léelo despacio. Las orejas grandes sirven.</Speech>
       </div>
       <article className="mt-8 space-y-6">
-        {reading.body.map((block, i) => (
+        {blocksOfType(bloques, "parrafo").map((block, i) => (
           <div key={i} className="rounded-card border-[3px] border-ink bg-cloud p-5 shadow-chunky-sm">
-            {block.title ? (
+            {blockText(block, "title") ? (
               <p className="font-display text-sm font-semibold uppercase tracking-widest text-gadu">
-                {block.title}
+                {blockText(block, "title")}
               </p>
             ) : null}
             <p
               className={cn(
                 "whitespace-pre-line text-lg leading-relaxed",
-                reading.kind === "rima" && "font-display text-2xl font-medium leading-snug",
-                reading.kind === "carta" && "font-display text-2xl font-medium leading-snug",
+                kind === "rima" && "font-display text-2xl font-medium leading-snug",
+                kind === "carta" && "font-display text-2xl font-medium leading-snug",
               )}
             >
-              {block.text}
+              {blockText(block)}
             </p>
           </div>
         ))}
       </article>
-      {reading.tryAtHome ? (
+      {paraCasa ? (
         <div className="mt-6 rounded-card border-[3px] border-ink bg-yellow p-5 shadow-chunky-sm">
           <p className="font-display text-sm font-semibold uppercase tracking-widest">Para casa</p>
-          <p className="mt-2 text-lg">{reading.tryAtHome}</p>
+          <p className="mt-2 text-lg">{blockText(paraCasa)}</p>
         </div>
       ) : null}
       <div className="mt-8 flex flex-wrap items-center gap-3">
@@ -64,9 +85,9 @@ function ReadingPage() {
         ) : (
           <Button
             tone="yellow"
-            onClick={() => complete(`read:${reading.id}`, reading.kind === "carta" ? 3 : 5, `lectura-${reading.id}`, reading.host)}
+            onClick={() => complete(`read:${slug}`, kind === "carta" ? 3 : 5, `lectura-${slug}`, anfitrion)}
           >
-            {reading.kind === "carta" ? "Guardar en el álbum" : "¡Ya lo leí!"}
+            {kind === "carta" ? "Guardar en el álbum" : "¡Ya lo leí!"}
           </Button>
         )}
         <Link to="/leer" className={buttonVariants({ tone: "cream" })}>

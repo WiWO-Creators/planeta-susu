@@ -1,5 +1,7 @@
 import { createFileRoute, Link, notFound } from "@tanstack/react-router";
 import { characterMap } from "@/data/characters";
+import { articleWorld, articlesOfSection } from "@/data/catalog";
+import { getArticles } from "@/lib/articles";
 import { getTopic } from "@/data/topics";
 import { territories } from "@/data/territories";
 import { LessonView } from "@/components/learn/LessonView";
@@ -8,15 +10,18 @@ import { buttonVariants } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
 export const Route = createFileRoute("/explora/$tema")({
+  loader: () => getArticles(),
   component: TemaPage,
 });
 
 function TemaPage() {
   const { tema } = Route.useParams();
+  const ARTICLES = Route.useLoaderData();
   const topic = getTopic(tema);
   if (!topic) throw notFound();
   const host = characterMap[topic.host];
   const territory = territories.find((t) => t.topic === tema);
+  const lessons = articlesOfSection(ARTICLES, "explora").filter((a) => articleWorld(a) === tema);
 
   return (
     <main>
@@ -42,8 +47,8 @@ function TemaPage() {
 
       <div className="mx-auto max-w-3xl space-y-16 px-4 py-12 sm:px-6">
         <Speech who={topic.host}>{host.greeting}</Speech>
-        {topic.lessons.map((lesson) => (
-          <LessonView key={lesson.slug} lesson={lesson} topicSlug={topic.slug} />
+        {lessons.map((lesson) => (
+          <LessonView key={lesson.id} lesson={lesson} topicSlug={topic.slug} />
         ))}
         <aside className="rounded-card border-[3px] border-ink bg-cream p-5">
           <p className="font-display text-sm font-semibold uppercase tracking-widest">Para grandes</p>

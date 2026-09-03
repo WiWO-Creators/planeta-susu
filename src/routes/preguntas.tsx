@@ -1,13 +1,19 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { Photo } from "@/components/ui/photo";
 import { useState } from "react";
-import { clubQuestions } from "@/data/club";
+import { articleBlocks, articleHost, articlesOfSection } from "@/data/catalog";
 import { characterMap } from "@/data/characters";
+import { getArticles } from "@/lib/articles";
+import { blockText, firstBlockOfType } from "@/lib/blocks";
 import { buttonVariants } from "@/components/ui/button";
 
-export const Route = createFileRoute("/preguntas")({ component: Preguntas });
+export const Route = createFileRoute("/preguntas")({
+  loader: () => getArticles(),
+  component: Preguntas,
+});
 
 function Preguntas() {
+  const ARTICLES = Route.useLoaderData();
   const [q, setQ] = useState("");
   const [adult, setAdult] = useState(false);
   const [sent, setSent] = useState(false);
@@ -65,19 +71,24 @@ function Preguntas() {
 
       <h2 className="mt-12 font-display text-3xl font-semibold">Respuestas breves</h2>
       <ul className="mt-6 space-y-4">
-        {clubQuestions.map((c) => {
-          const host = characterMap[c.host];
+        {articlesOfSection(ARTICLES, "preguntas").map((c) => {
+          const host = characterMap[articleHost(c)];
+          const siguiente = firstBlockOfType(articleBlocks(c), "nueva-pregunta");
           return (
-            <li key={c.q} className="rounded-card border-[3px] border-ink bg-cloud p-5">
+            <li key={c.id} className="rounded-card border-[3px] border-ink bg-cloud p-5">
               <div className="flex items-start gap-3">
                 <img src={host.portrait} alt="" className="h-16 w-auto object-contain" />
                 <div>
                   <p className="font-display text-xs font-semibold uppercase tracking-widest text-ink-soft">
                     {host.name}
                   </p>
-                  <h3 className="font-display text-2xl font-semibold">{c.q}</h3>
-                  <p className="mt-2">{c.a}</p>
-                  <p className="mt-3 font-display font-semibold">Nueva pregunta: {c.next}</p>
+                  <h3 className="font-display text-2xl font-semibold">{c.title}</h3>
+                  <p className="mt-2">{c.summary}</p>
+                  {siguiente ? (
+                    <p className="mt-3 font-display font-semibold">
+                      Nueva pregunta: {blockText(siguiente)}
+                    </p>
+                  ) : null}
                 </div>
               </div>
             </li>

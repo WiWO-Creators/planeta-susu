@@ -1,10 +1,16 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { guides } from "@/data/guides";
+import { articleMinutes, articleSlug, articlesOfSection } from "@/data/catalog";
 import { topics } from "@/data/topics";
+import { getArticles } from "@/lib/articles";
 
-export const Route = createFileRoute("/padres/")({ component: Padres });
+export const Route = createFileRoute("/padres/")({
+  loader: () => getArticles(),
+  component: Padres,
+});
 
 function Padres() {
+  const ARTICLES = Route.useLoaderData();
+  const guides = articlesOfSection(ARTICLES, "padres");
   return (
     <main>
       <section className="relative overflow-hidden border-b-[3px] border-ink bg-ink text-cream">
@@ -32,16 +38,16 @@ function Padres() {
         <div className="mt-6 grid gap-4 md:grid-cols-2">
           {guides.map((g) => (
             <Link
-              key={g.slug}
+              key={g.id}
               to="/padres/$slug"
-              params={{ slug: g.slug }}
+              params={{ slug: articleSlug(g) }}
               className="rounded-card border-[3px] border-ink bg-cloud p-5 shadow-chunky-sm transition-transform hover:-translate-y-1"
             >
               <p className="font-display text-xs font-semibold uppercase tracking-widest text-ink-soft">
-                {g.minutes} min · {g.topics.join(" · ")}
+                {articleMinutes(g)} min · {g.tags.join(" · ")}
               </p>
               <h3 className="mt-2 font-display text-2xl font-semibold">{g.title}</h3>
-              <p className="mt-2 text-ink-soft">{g.lede}</p>
+              <p className="mt-2 text-ink-soft">{g.summary}</p>
             </Link>
           ))}
         </div>

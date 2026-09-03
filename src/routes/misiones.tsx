@@ -5,24 +5,39 @@ import { useEffect, useState } from "react";
 import { RankBar } from "@/components/progress/RankBar";
 import { Hearts } from "@/components/progress/Hearts";
 import { buttonVariants } from "@/components/ui/button";
+import {
+  articleAge,
+  articleBlocks,
+  articleHost,
+  articleMaterials,
+  articleMinutes,
+  articleQuestion,
+  articlesOfSection,
+} from "@/data/catalog";
+import { getArticles } from "@/lib/articles";
 import { characterMap, characters } from "@/data/characters";
 import { missionDayKey, missionsForToday } from "@/data/missions";
-import { packMissions } from "@/data/packMissions";
 import { STICKERS } from "@/data/stickers";
+import { blockText, blocksOfType, firstBlockOfType } from "@/lib/blocks";
 import { useProgress } from "@/store/progress";
 import { cn } from "@/lib/utils";
 
-export const Route = createFileRoute("/misiones")({ component: Misiones });
+export const Route = createFileRoute("/misiones")({
+  loader: () => getArticles(),
+  component: Misiones,
+});
 
 function Misiones() {
+  const ARTICLES = Route.useLoaderData();
   const stars = useProgress((s) => s.stars);
   const streak = useProgress((s) => s.streak);
   const completed = useProgress((s) => s.completed);
   const friendship = useProgress((s) => s.friendship);
   const stickers = useProgress((s) => s.stickers);
   const syncMissions = useProgress((s) => s.syncMissions);
-  const [openId, setOpenId] = useState<string | null>("m7-012");
+  const [openId, setOpenId] = useState<string | null>("misiones-m7-012");
   const missions = missionsForToday();
+  const packMissions = articlesOfSection(ARTICLES, "misiones");
   const day = missionDayKey();
 
   useEffect(() => {
@@ -98,8 +113,10 @@ function Misiones() {
       </p>
       <ul className="mt-5 grid gap-3">
         {packMissions.map((m) => {
-          const host = characterMap[m.host];
+          const host = characterMap[articleHost(m)];
           const open = openId === m.id;
+          const bloques = articleBlocks(m);
+          const idea = firstBlockOfType(bloques, "idea");
           return (
             <li key={m.id} className="rounded-card border-[3px] border-ink bg-cloud shadow-chunky-sm">
               <button
@@ -111,23 +128,27 @@ function Misiones() {
                 <img src={host.portrait} alt="" className="h-16 w-12 object-contain object-bottom" />
                 <div className="flex-1">
                   <p className="font-display text-xs font-semibold uppercase tracking-widest text-ink-soft">
-                    {m.minutes} min · {m.age} · {host.name}
+                    {articleMinutes(m)} min · {articleAge(m)} · {host.name}
                   </p>
                   <p className="font-display text-xl font-semibold">{m.title}</p>
-                  <p className="text-sm text-ink-soft">{m.question}</p>
+                  <p className="text-sm text-ink-soft">{articleQuestion(m)}</p>
                 </div>
                 <span className="font-display text-2xl">{open ? "–" : "+"}</span>
               </button>
               {open ? (
                 <div className="border-t-[3px] border-ink bg-cream p-4">
-                  <p>{m.lede}</p>
-                  <p className="mt-2 text-sm text-ink-soft">{m.materials}</p>
+                  <p>{m.summary}</p>
+                  <p className="mt-2 text-sm text-ink-soft">{articleMaterials(m)}</p>
                   <ol className="mt-3 list-decimal space-y-2 pl-5">
-                    {m.steps.map((st) => (
-                      <li key={st}>{st}</li>
+                    {blocksOfType(bloques, "paso").map((paso) => (
+                      <li key={blockText(paso)}>{blockText(paso)}</li>
                     ))}
                   </ol>
-                  <p className="mt-4 rounded-2xl bg-yellow px-4 py-3 font-display font-semibold">{m.idea}</p>
+                  {idea ? (
+                    <p className="mt-4 rounded-2xl bg-yellow px-4 py-3 font-display font-semibold">
+                      {blockText(idea)}
+                    </p>
+                  ) : null}
                 </div>
               ) : null}
             </li>

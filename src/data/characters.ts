@@ -180,3 +180,16 @@ export const characterMap = Object.fromEntries(characters.map((c) => [c.slug, c]
 export function getCharacter(slug: string) {
   return characterMap[slug as CharacterSlug];
 }
+
+/**
+ * Si un valor cualquiera nombra a alguien del elenco.
+ *
+ * El elenco es cerrado: cada personaje tiene retrato, color y componentes
+ * propios. Un slug inventado —el de una pieza publicada desde el orquestador,
+ * por ejemplo— dejaría `characterMap[slug]` en `undefined` y la página se
+ * caería al pedirle el retrato. Por eso el manifest declara el personaje como
+ * enum y acá se comprueba antes de usarlo.
+ */
+export function isCharacterSlug(valor: unknown): valor is CharacterSlug {
+  return typeof valor === "string" && valor in characterMap;
+}

@@ -2,30 +2,37 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { Photo } from "@/components/ui/photo";
 import { PageHero } from "@/components/play/PageHero";
 import { characterMap } from "@/data/characters";
-import { stories, storyCover } from "@/data/stories";
+import { articleHost, articleImage, articleSlug, articlesOfSection } from "@/data/catalog";
+import { getArticles } from "@/lib/articles";
 import { useProgress } from "@/store/progress";
 
-export const Route = createFileRoute("/aventuras/")({ component: Aventuras });
+export const Route = createFileRoute("/aventuras/")({
+  loader: () => getArticles(),
+  component: Aventuras,
+});
 
 function Aventuras() {
+  const ARTICLES = Route.useLoaderData();
   const completed = useProgress((s) => s.completed);
+  const stories = articlesOfSection(ARTICLES, "aventuras");
   return (
     <main>
       <PageHero title="Cuentos" who="margarel" kicker="Toca un cuento" />
       <div className="mx-auto max-w-6xl px-4 py-6 sm:px-6">
         <div className="grid gap-3 sm:grid-cols-2">
           {stories.map((s, i) => {
-            const host = characterMap[s.hosts[0]];
-            const done = completed.includes(`story:${s.id}`);
+            const host = characterMap[articleHost(s)];
+            const slug = articleSlug(s);
+            const done = completed.includes(`story:${slug}`);
             return (
               <Link
                 key={s.id}
                 to="/aventuras/$id"
-                params={{ id: s.id }}
+                params={{ id: slug }}
                 className="overflow-hidden rounded-card border-[3px] border-ink bg-cloud shadow-chunky-sm"
               >
                 <div className="relative">
-                  <Photo src={storyCover[s.id] ?? host.portrait} ratio="video" />
+                  <Photo src={articleImage(s).url || host.portrait} ratio="video" />
                   <img
                     src={host.portrait}
                     alt=""

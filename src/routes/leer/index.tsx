@@ -1,9 +1,21 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { Photo } from "@/components/ui/photo";
-import { KIND_LABEL, KIND_ORDER, readings, type ReadingKind } from "@/data/readings";
+import {
+  KIND_LABEL,
+  KIND_ORDER,
+  articleImage,
+  articleReadingKind,
+  articleSlug,
+  articlesOfSection,
+} from "@/data/catalog";
+import type { ReadingKind } from "@/data/types";
+import { getArticles } from "@/lib/articles";
 import { useProgress } from "@/store/progress";
 
-export const Route = createFileRoute("/leer/")({ component: Leer });
+export const Route = createFileRoute("/leer/")({
+  loader: () => getArticles(),
+  component: Leer,
+});
 
 function Leer() {
   const completed = useProgress((s) => s.completed);
@@ -21,8 +33,9 @@ function Leer() {
 }
 
 function KindSection({ kind, completed }: { kind: ReadingKind; completed: string[] }) {
-  const items = readings.filter((r) => r.kind === kind);
-  const n = items.filter((r) => completed.includes(`read:${r.id}`)).length;
+  const ARTICLES = Route.useLoaderData();
+  const items = articlesOfSection(ARTICLES, "leer").filter((r) => articleReadingKind(r) === kind);
+  const n = items.filter((r) => completed.includes(`read:${articleSlug(r)}`)).length;
   return (
     <section className="mt-12">
       <div className="flex items-baseline justify-between gap-3">
@@ -33,16 +46,17 @@ function KindSection({ kind, completed }: { kind: ReadingKind; completed: string
       </div>
       <div className="mt-5 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
         {items.map((r) => {
-          const read = completed.includes(`read:${r.id}`);
+          const slug = articleSlug(r);
+          const read = completed.includes(`read:${slug}`);
           return (
             <Link
               key={r.id}
               to="/leer/$id"
-              params={{ id: r.id }}
+              params={{ id: slug }}
               className="overflow-hidden rounded-card border-[3px] border-ink bg-cloud shadow-chunky-sm transition-transform hover:-translate-y-1"
             >
               <div className="relative">
-                <Photo src={r.cover} ratio="card" />
+                <Photo src={articleImage(r).url} ratio="card" />
                 {read ? (
                   <span className="absolute right-2 top-2 rounded-full bg-yellow px-2 py-0.5 font-display text-xs font-semibold">
                     Leído

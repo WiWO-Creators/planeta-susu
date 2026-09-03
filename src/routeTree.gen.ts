@@ -22,6 +22,8 @@ import { Route as AventurasIndexRouteImport } from './routes/aventuras/index'
 import { Route as AventurasIdRouteImport } from './routes/aventuras/$id'
 import { Route as ExploraIndexRouteImport } from './routes/explora/index'
 import { Route as ExploraTemaRouteImport } from './routes/explora/$tema'
+import { Route as InteractivoIndexRouteImport } from './routes/interactivo/index'
+import { Route as InteractivoIdRouteImport } from './routes/interactivo/$id'
 import { Route as JuegosIndexRouteImport } from './routes/juegos/index'
 import { Route as JuegosIdRouteImport } from './routes/juegos/$id'
 import { Route as LeerIndexRouteImport } from './routes/leer/index'
@@ -30,6 +32,10 @@ import { Route as PadresIndexRouteImport } from './routes/padres/index'
 import { Route as PadresSlugRouteImport } from './routes/padres/$slug'
 import { Route as PersonajesIndexRouteImport } from './routes/personajes/index'
 import { Route as PersonajesSlugRouteImport } from './routes/personajes/$slug'
+import { Route as ApiWiwoV1ArticlesRouteImport } from './routes/api/wiwo/v1/articles'
+import { Route as ApiWiwoV1ManifestRouteImport } from './routes/api/wiwo/v1/manifest'
+import { Route as ApiWiwoV1MediaRouteImport } from './routes/api/wiwo/v1/media'
+import { Route as ApiWiwoV1MediaIdRouteImport } from './routes/api/wiwo/v1/media.$id'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -96,6 +102,16 @@ const ExploraTemaRoute = ExploraTemaRouteImport.update({
   path: '/explora/$tema',
   getParentRoute: () => rootRouteImport,
 } as any)
+const InteractivoIndexRoute = InteractivoIndexRouteImport.update({
+  id: '/interactivo/',
+  path: '/interactivo/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const InteractivoIdRoute = InteractivoIdRouteImport.update({
+  id: '/interactivo/$id',
+  path: '/interactivo/$id',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const JuegosIndexRoute = JuegosIndexRouteImport.update({
   id: '/juegos/',
   path: '/juegos/',
@@ -136,6 +152,26 @@ const PersonajesSlugRoute = PersonajesSlugRouteImport.update({
   path: '/personajes/$slug',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiWiwoV1ArticlesRoute = ApiWiwoV1ArticlesRouteImport.update({
+  id: '/api/wiwo/v1/articles',
+  path: '/api/wiwo/v1/articles',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiWiwoV1ManifestRoute = ApiWiwoV1ManifestRouteImport.update({
+  id: '/api/wiwo/v1/manifest',
+  path: '/api/wiwo/v1/manifest',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiWiwoV1MediaRoute = ApiWiwoV1MediaRouteImport.update({
+  id: '/api/wiwo/v1/media',
+  path: '/api/wiwo/v1/media',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiWiwoV1MediaIdRoute = ApiWiwoV1MediaIdRouteImport.update({
+  id: '/$id',
+  path: '/$id',
+  getParentRoute: () => ApiWiwoV1MediaRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -149,16 +185,22 @@ export interface FileRoutesByFullPath {
   '/sobre': typeof SobreRoute
   '/aventuras/$id': typeof AventurasIdRoute
   '/explora/$tema': typeof ExploraTemaRoute
+  '/interactivo/$id': typeof InteractivoIdRoute
   '/juegos/$id': typeof JuegosIdRoute
   '/leer/$id': typeof LeerIdRoute
   '/padres/$slug': typeof PadresSlugRoute
   '/personajes/$slug': typeof PersonajesSlugRoute
   '/aventuras/': typeof AventurasIndexRoute
   '/explora/': typeof ExploraIndexRoute
+  '/interactivo/': typeof InteractivoIndexRoute
   '/juegos/': typeof JuegosIndexRoute
   '/leer/': typeof LeerIndexRoute
   '/padres/': typeof PadresIndexRoute
   '/personajes/': typeof PersonajesIndexRoute
+  '/api/wiwo/v1/articles': typeof ApiWiwoV1ArticlesRoute
+  '/api/wiwo/v1/manifest': typeof ApiWiwoV1ManifestRoute
+  '/api/wiwo/v1/media': typeof ApiWiwoV1MediaRouteWithChildren
+  '/api/wiwo/v1/media/$id': typeof ApiWiwoV1MediaIdRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -172,16 +214,22 @@ export interface FileRoutesByTo {
   '/sobre': typeof SobreRoute
   '/aventuras/$id': typeof AventurasIdRoute
   '/explora/$tema': typeof ExploraTemaRoute
+  '/interactivo/$id': typeof InteractivoIdRoute
   '/juegos/$id': typeof JuegosIdRoute
   '/leer/$id': typeof LeerIdRoute
   '/padres/$slug': typeof PadresSlugRoute
   '/personajes/$slug': typeof PersonajesSlugRoute
   '/aventuras': typeof AventurasIndexRoute
   '/explora': typeof ExploraIndexRoute
+  '/interactivo': typeof InteractivoIndexRoute
   '/juegos': typeof JuegosIndexRoute
   '/leer': typeof LeerIndexRoute
   '/padres': typeof PadresIndexRoute
   '/personajes': typeof PersonajesIndexRoute
+  '/api/wiwo/v1/articles': typeof ApiWiwoV1ArticlesRoute
+  '/api/wiwo/v1/manifest': typeof ApiWiwoV1ManifestRoute
+  '/api/wiwo/v1/media': typeof ApiWiwoV1MediaRouteWithChildren
+  '/api/wiwo/v1/media/$id': typeof ApiWiwoV1MediaIdRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -196,16 +244,22 @@ export interface FileRoutesById {
   '/sobre': typeof SobreRoute
   '/aventuras/$id': typeof AventurasIdRoute
   '/explora/$tema': typeof ExploraTemaRoute
+  '/interactivo/$id': typeof InteractivoIdRoute
   '/juegos/$id': typeof JuegosIdRoute
   '/leer/$id': typeof LeerIdRoute
   '/padres/$slug': typeof PadresSlugRoute
   '/personajes/$slug': typeof PersonajesSlugRoute
   '/aventuras/': typeof AventurasIndexRoute
   '/explora/': typeof ExploraIndexRoute
+  '/interactivo/': typeof InteractivoIndexRoute
   '/juegos/': typeof JuegosIndexRoute
   '/leer/': typeof LeerIndexRoute
   '/padres/': typeof PadresIndexRoute
   '/personajes/': typeof PersonajesIndexRoute
+  '/api/wiwo/v1/articles': typeof ApiWiwoV1ArticlesRoute
+  '/api/wiwo/v1/manifest': typeof ApiWiwoV1ManifestRoute
+  '/api/wiwo/v1/media': typeof ApiWiwoV1MediaRouteWithChildren
+  '/api/wiwo/v1/media/$id': typeof ApiWiwoV1MediaIdRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -221,16 +275,22 @@ export interface FileRouteTypes {
     | '/sobre'
     | '/aventuras/$id'
     | '/explora/$tema'
+    | '/interactivo/$id'
     | '/juegos/$id'
     | '/leer/$id'
     | '/padres/$slug'
     | '/personajes/$slug'
     | '/aventuras/'
     | '/explora/'
+    | '/interactivo/'
     | '/juegos/'
     | '/leer/'
     | '/padres/'
     | '/personajes/'
+    | '/api/wiwo/v1/articles'
+    | '/api/wiwo/v1/manifest'
+    | '/api/wiwo/v1/media'
+    | '/api/wiwo/v1/media/$id'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -244,16 +304,22 @@ export interface FileRouteTypes {
     | '/sobre'
     | '/aventuras/$id'
     | '/explora/$tema'
+    | '/interactivo/$id'
     | '/juegos/$id'
     | '/leer/$id'
     | '/padres/$slug'
     | '/personajes/$slug'
     | '/aventuras'
     | '/explora'
+    | '/interactivo'
     | '/juegos'
     | '/leer'
     | '/padres'
     | '/personajes'
+    | '/api/wiwo/v1/articles'
+    | '/api/wiwo/v1/manifest'
+    | '/api/wiwo/v1/media'
+    | '/api/wiwo/v1/media/$id'
   id:
     | '__root__'
     | '/'
@@ -267,16 +333,22 @@ export interface FileRouteTypes {
     | '/sobre'
     | '/aventuras/$id'
     | '/explora/$tema'
+    | '/interactivo/$id'
     | '/juegos/$id'
     | '/leer/$id'
     | '/padres/$slug'
     | '/personajes/$slug'
     | '/aventuras/'
     | '/explora/'
+    | '/interactivo/'
     | '/juegos/'
     | '/leer/'
     | '/padres/'
     | '/personajes/'
+    | '/api/wiwo/v1/articles'
+    | '/api/wiwo/v1/manifest'
+    | '/api/wiwo/v1/media'
+    | '/api/wiwo/v1/media/$id'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -291,16 +363,21 @@ export interface RootRouteChildren {
   SobreRoute: typeof SobreRoute
   AventurasIdRoute: typeof AventurasIdRoute
   ExploraTemaRoute: typeof ExploraTemaRoute
+  InteractivoIdRoute: typeof InteractivoIdRoute
   JuegosIdRoute: typeof JuegosIdRoute
   LeerIdRoute: typeof LeerIdRoute
   PadresSlugRoute: typeof PadresSlugRoute
   PersonajesSlugRoute: typeof PersonajesSlugRoute
   AventurasIndexRoute: typeof AventurasIndexRoute
   ExploraIndexRoute: typeof ExploraIndexRoute
+  InteractivoIndexRoute: typeof InteractivoIndexRoute
   JuegosIndexRoute: typeof JuegosIndexRoute
   LeerIndexRoute: typeof LeerIndexRoute
   PadresIndexRoute: typeof PadresIndexRoute
   PersonajesIndexRoute: typeof PersonajesIndexRoute
+  ApiWiwoV1ArticlesRoute: typeof ApiWiwoV1ArticlesRoute
+  ApiWiwoV1ManifestRoute: typeof ApiWiwoV1ManifestRoute
+  ApiWiwoV1MediaRoute: typeof ApiWiwoV1MediaRouteWithChildren
 }
 
 declare module '@tanstack/react-router' {
@@ -396,6 +473,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ExploraTemaRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/interactivo/': {
+      id: '/interactivo/'
+      path: '/interactivo'
+      fullPath: '/interactivo/'
+      preLoaderRoute: typeof InteractivoIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/interactivo/$id': {
+      id: '/interactivo/$id'
+      path: '/interactivo/$id'
+      fullPath: '/interactivo/$id'
+      preLoaderRoute: typeof InteractivoIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/juegos/': {
       id: '/juegos/'
       path: '/juegos'
@@ -452,8 +543,48 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof PersonajesSlugRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/wiwo/v1/articles': {
+      id: '/api/wiwo/v1/articles'
+      path: '/api/wiwo/v1/articles'
+      fullPath: '/api/wiwo/v1/articles'
+      preLoaderRoute: typeof ApiWiwoV1ArticlesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/wiwo/v1/manifest': {
+      id: '/api/wiwo/v1/manifest'
+      path: '/api/wiwo/v1/manifest'
+      fullPath: '/api/wiwo/v1/manifest'
+      preLoaderRoute: typeof ApiWiwoV1ManifestRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/wiwo/v1/media': {
+      id: '/api/wiwo/v1/media'
+      path: '/api/wiwo/v1/media'
+      fullPath: '/api/wiwo/v1/media'
+      preLoaderRoute: typeof ApiWiwoV1MediaRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/wiwo/v1/media/$id': {
+      id: '/api/wiwo/v1/media/$id'
+      path: '/$id'
+      fullPath: '/api/wiwo/v1/media/$id'
+      preLoaderRoute: typeof ApiWiwoV1MediaIdRouteImport
+      parentRoute: typeof ApiWiwoV1MediaRoute
+    }
   }
 }
+
+interface ApiWiwoV1MediaRouteChildren {
+  ApiWiwoV1MediaIdRoute: typeof ApiWiwoV1MediaIdRoute
+}
+
+const ApiWiwoV1MediaRouteChildren: ApiWiwoV1MediaRouteChildren = {
+  ApiWiwoV1MediaIdRoute: ApiWiwoV1MediaIdRoute,
+}
+
+const ApiWiwoV1MediaRouteWithChildren = ApiWiwoV1MediaRoute._addFileChildren(
+  ApiWiwoV1MediaRouteChildren,
+)
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
@@ -467,16 +598,21 @@ const rootRouteChildren: RootRouteChildren = {
   SobreRoute: SobreRoute,
   AventurasIdRoute: AventurasIdRoute,
   ExploraTemaRoute: ExploraTemaRoute,
+  InteractivoIdRoute: InteractivoIdRoute,
   JuegosIdRoute: JuegosIdRoute,
   LeerIdRoute: LeerIdRoute,
   PadresSlugRoute: PadresSlugRoute,
   PersonajesSlugRoute: PersonajesSlugRoute,
   AventurasIndexRoute: AventurasIndexRoute,
   ExploraIndexRoute: ExploraIndexRoute,
+  InteractivoIndexRoute: InteractivoIndexRoute,
   JuegosIndexRoute: JuegosIndexRoute,
   LeerIndexRoute: LeerIndexRoute,
   PadresIndexRoute: PadresIndexRoute,
   PersonajesIndexRoute: PersonajesIndexRoute,
+  ApiWiwoV1ArticlesRoute: ApiWiwoV1ArticlesRoute,
+  ApiWiwoV1ManifestRoute: ApiWiwoV1ManifestRoute,
+  ApiWiwoV1MediaRoute: ApiWiwoV1MediaRouteWithChildren,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

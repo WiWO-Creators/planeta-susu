@@ -1,31 +1,47 @@
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { useEffect, useState } from "react";
 import { characterMap } from "@/data/characters";
-import { panelArt, type Story } from "@/data/stories";
+import { articleBlocks, articleHost, articleSlug } from "@/data/catalog";
+import type { Article } from "@/data/types";
+import { blockFlag, blockHost, blockText } from "@/lib/blocks";
 import { Button } from "@/components/ui/button";
 import { useProgress } from "@/store/progress";
 
-export function StoryReader({ story }: { story: Story }) {
+/**
+ * Responsabilidad: pasar las viñetas de un cuento, una por una.
+ * Usado por: routes/aventuras/$id.tsx.
+ * NO hace: no elige el cuento ni sabe de dónde viene.
+ *
+ * La ilustración viaja DENTRO de la viñeta. Antes se buscaba en una tabla
+ * aparte por id y posición, con un recorte cuando había menos ilustraciones que
+ * viñetas; ahora cada viñeta trae la suya y un cuento publicado desde el
+ * orquestador se dibuja igual que los del archivo.
+ */
+
+export function StoryReader({ story }: { story: Article }) {
   const [i, setI] = useState(0);
   const complete = useProgress((s) => s.complete);
-  const panel = story.panels[i]!;
-  const who = panel.who ? characterMap[panel.who] : characterMap.susu;
-  const last = i === story.panels.length - 1;
-  const art = panelArt(story.id, i);
+  const panels = articleBlocks(story);
+  const panel = panels[i]!;
+  const quien = blockHost(panel);
+  const who = characterMap[quien ?? "susu"];
+  const last = i === panels.length - 1;
+  const art = blockText(panel, "art");
 
   function go(next: number) {
-    const n = Math.max(0, Math.min(story.panels.length - 1, next));
+    const n = Math.max(0, Math.min(panels.length - 1, next));
     if (n === i) return;
     setI(n);
-    if (n === story.panels.length - 1) {
-      complete(`story:${story.id}`, 8, `cuento-${story.id}`, story.hosts[0]);
+    if (n === panels.length - 1) {
+      const slug = articleSlug(story);
+      complete(`story:${slug}`, 8, `cuento-${slug}`, articleHost(story));
     }
   }
 
   useEffect(() => {
     const img = new Image();
-    img.src = panelArt(story.id, Math.min(i + 1, story.panels.length - 1));
-  }, [i, story.id, story.panels.length]);
+    img.src = blockText(panels[Math.min(i + 1, panels.length - 1)]!, "art");
+  }, [i, panels]);
 
   return (
     <div>
@@ -49,11 +65,11 @@ export function StoryReader({ story }: { story: Story }) {
           />
           <div className="bubble min-w-0 flex-1">
             <p className="font-display text-sm font-semibold" style={{ color: who.color }}>
-              {panel.narrator || !panel.who ? "Narrador" : who.name}
+              {blockFlag(panel, "narrator") || !quien ? "Narrador" : who.name}
             </p>
-            <p className="mt-1 font-display text-lg font-medium leading-snug sm:text-2xl">{panel.text}</p>
+            <p className="mt-1 font-display text-lg font-medium leading-snug sm:text-2xl">{blockText(panel)}</p>
             <p className="mt-2 font-display text-sm tabular-nums text-ink-soft">
-              {i + 1} / {story.panels.length}
+              {i + 1} / {panels.length}
             </p>
           </div>
         </div>
@@ -63,7 +79,7 @@ export function StoryReader({ story }: { story: Story }) {
           <ChevronLeft className="size-7" /> Atrás
         </Button>
         <p className="font-display text-lg font-semibold tabular-nums">
-          {i + 1}/{story.panels.length}
+          {i + 1}/{panels.length}
         </p>
         <Button
           tone={last ? "zizu" : "yellow"}

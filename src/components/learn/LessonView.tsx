@@ -1,12 +1,26 @@
 import { Check, FlaskConical, Heart, Lightbulb, ListTodo, Sparkles } from "lucide-react";
 import { useState } from "react";
+import type { WiwoBlock } from "@wiwo/contract";
 import { Speech } from "@/components/characters/Figure";
 import { Button } from "@/components/ui/button";
-import type { Lesson, LessonBlock, QuizItem } from "@/data/topics";
+import { articleBlocks, articleHost, articleLesson, articleQuiz } from "@/data/catalog";
+import type { Article, Quiz as QuizItem } from "@/data/types";
 import type { CharacterSlug } from "@/data/characters";
+import { blockHost, blockList, blockText } from "@/lib/blocks";
 import { ding } from "@/lib/utils";
 import { useProgress } from "@/store/progress";
 import { cn } from "@/lib/utils";
+
+/**
+ * Responsabilidad: dibujar una lección —sus bloques y su pregunta— dentro del
+ * mundo al que pertenece.
+ * Usado por: routes/explora/$tema.tsx.
+ * NO hace: no busca la lección ni sabe qué mundo la contiene.
+ *
+ * Los bloques llegan en la forma abierta del contrato, así que cada campo se
+ * lee con tolerancia: un bloque de una clase que este sitio no dibuja se saltea
+ * en vez de romper la página.
+ */
 
 const toneIcon = {
   tip: Lightbulb,
@@ -14,42 +28,40 @@ const toneIcon = {
   care: Heart,
 };
 
-export function LessonView({
-  lesson,
-  topicSlug,
-}: {
-  lesson: Lesson;
-  topicSlug: string;
-}) {
+export function LessonView({ lesson, topicSlug }: { lesson: Article; topicSlug: string }) {
+  const quiz = articleQuiz(lesson);
+  const slug = articleLesson(lesson);
   return (
     <article className="space-y-5">
       <header>
         <h3 className="font-display text-3xl font-semibold">{lesson.title}</h3>
       </header>
-      {lesson.blocks.map((b, i) => (
+      {articleBlocks(lesson).map((b, i) => (
         <Block key={i} block={b} />
       ))}
-      <Quiz
-        item={lesson.quiz}
-        completeId={`lesson:${topicSlug}:${lesson.slug}`}
-        badge={`leccion-${lesson.slug}`}
-        friend={lesson.host}
-      />
+      {quiz ? (
+        <Quiz
+          item={quiz}
+          completeId={`lesson:${topicSlug}:${slug}`}
+          badge={`leccion-${slug}`}
+          friend={articleHost(lesson)}
+        />
+      ) : null}
     </article>
   );
 }
 
-function Block({ block }: { block: LessonBlock }) {
+function Block({ block }: { block: WiwoBlock }) {
   if (block.type === "say") {
-    return <Speech who={block.who}>{block.text}</Speech>;
+    return <Speech who={blockHost(block) ?? "susu"}>{blockText(block)}</Speech>;
   }
   if (block.type === "text") {
     return (
       <div>
-        {block.title ? (
-          <h4 className="font-display text-xl font-semibold">{block.title}</h4>
+        {blockText(block, "title") ? (
+          <h4 className="font-display text-xl font-semibold">{blockText(block, "title")}</h4>
         ) : null}
-        <p className="mt-2 text-lg leading-relaxed text-ink-soft">{block.body}</p>
+        <p className="mt-2 text-lg leading-relaxed text-ink-soft">{blockText(block, "body")}</p>
       </div>
     );
   }
@@ -57,10 +69,10 @@ function Block({ block }: { block: LessonBlock }) {
     return (
       <div className="rounded-card border-[3px] border-ink bg-cloud p-5 shadow-chunky-sm">
         <h4 className="flex items-center gap-2 font-display text-xl font-semibold">
-          <ListTodo className="size-5" /> {block.title}
+          <ListTodo className="size-5" /> {blockText(block, "title")}
         </h4>
         <ul className="mt-3 space-y-2">
-          {block.items.map((it) => (
+          {blockList(block, "items").map((it) => (
             <li key={it} className="flex gap-2 text-base sm:text-lg">
               <span className="mt-2 size-2 shrink-0 rounded-full bg-gadu" />
               <span>{it}</span>
@@ -74,19 +86,21 @@ function Block({ block }: { block: LessonBlock }) {
     return (
       <div className="rounded-card border-[3px] border-ink bg-mint p-5 text-ink shadow-chunky-sm">
         <h4 className="flex items-center gap-2 font-display text-xl font-semibold">
-          <FlaskConical className="size-5" /> {block.title}
+          <FlaskConical className="size-5" /> {blockText(block, "title")}
         </h4>
         <ol className="mt-3 list-decimal space-y-2 pl-5 text-base sm:text-lg">
-          {block.steps.map((s) => (
+          {blockList(block, "steps").map((s) => (
             <li key={s}>{s}</li>
           ))}
         </ol>
       </div>
     );
   }
-  const Icon = toneIcon[block.tone];
-  const bg =
-    block.tone === "wow" ? "bg-yellow" : block.tone === "care" ? "bg-pink" : "bg-sky";
+  if (block.type !== "callout") return null;
+
+  const tone = blockText(block, "tone");
+  const Icon = toneIcon[tone as keyof typeof toneIcon] ?? Lightbulb;
+  const bg = tone === "wow" ? "bg-yellow" : tone === "care" ? "bg-pink" : "bg-sky";
   return (
     <p
       className={cn(
@@ -95,7 +109,7 @@ function Block({ block }: { block: LessonBlock }) {
       )}
     >
       <Icon className="mt-0.5 size-5 shrink-0" />
-      <span>{block.text}</span>
+      <span>{blockText(block)}</span>
     </p>
   );
 }

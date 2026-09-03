@@ -1,14 +1,17 @@
 import { createFileRoute, Link, notFound } from "@tanstack/react-router";
-import { getStory } from "@/data/stories";
+import { getArticleBySlug } from "@/data/catalog";
+import { getArticles } from "@/lib/articles";
 import { StoryReader } from "@/components/story/Reader";
 
 export const Route = createFileRoute("/aventuras/$id")({
+  loader: () => getArticles(),
   component: StoryPage,
 });
 
 function StoryPage() {
   const { id } = Route.useParams();
-  const story = getStory(id);
+  const ARTICLES = Route.useLoaderData();
+  const story = getArticleBySlug(ARTICLES, "aventuras", id);
   if (!story) throw notFound();
 
   return (

@@ -3,18 +3,26 @@ import { Photo } from "@/components/ui/photo";
 import { Flame, Sparkles } from "lucide-react";
 import { RankBar } from "@/components/progress/RankBar";
 import { Hearts } from "@/components/progress/Hearts";
+import {
+  articleLesson,
+  articleSlug,
+  articleWorld,
+  articlesOfSection,
+} from "@/data/catalog";
+import { getArticles } from "@/lib/articles";
 import { games } from "@/data/games";
-import { stories } from "@/data/stories";
-import { topics } from "@/data/topics";
-import { readings } from "@/data/readings";
 import { STICKERS } from "@/data/stickers";
 import { characters } from "@/data/characters";
 import { useProgress } from "@/store/progress";
 import { cn } from "@/lib/utils";
 
-export const Route = createFileRoute("/album")({ component: Album });
+export const Route = createFileRoute("/album")({
+  loader: () => getArticles(),
+  component: Album,
+});
 
 function Album() {
+  const ARTICLES = Route.useLoaderData();
   const stars = useProgress((s) => s.stars);
   const completed = useProgress((s) => s.completed);
   const badges = useProgress((s) => s.badges);
@@ -22,10 +30,12 @@ function Album() {
   const friendship = useProgress((s) => s.friendship);
   const streak = useProgress((s) => s.streak);
 
-  const lessonIds = topics.flatMap((t) => t.lessons.map((l) => `lesson:${t.slug}:${l.slug}`));
+  const lessonIds = articlesOfSection(ARTICLES, "explora").map(
+    (l) => `lesson:${articleWorld(l)}:${articleLesson(l)}`,
+  );
   const gameIds = games.map((g) => `game:${g.id}`);
-  const storyIds = stories.map((s) => `story:${s.id}`);
-  const readIds = readings.map((r) => `read:${r.id}`);
+  const storyIds = articlesOfSection(ARTICLES, "aventuras").map((s) => `story:${articleSlug(s)}`);
+  const readIds = articlesOfSection(ARTICLES, "leer").map((r) => `read:${articleSlug(r)}`);
 
   return (
     <main className="mx-auto max-w-4xl px-4 py-10 sm:px-6">

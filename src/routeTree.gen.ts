@@ -22,8 +22,6 @@ import { Route as AventurasIndexRouteImport } from './routes/aventuras/index'
 import { Route as AventurasIdRouteImport } from './routes/aventuras/$id'
 import { Route as ExploraIndexRouteImport } from './routes/explora/index'
 import { Route as ExploraTemaRouteImport } from './routes/explora/$tema'
-import { Route as InteractivoIndexRouteImport } from './routes/interactivo/index'
-import { Route as InteractivoIdRouteImport } from './routes/interactivo/$id'
 import { Route as JuegosIndexRouteImport } from './routes/juegos/index'
 import { Route as JuegosIdRouteImport } from './routes/juegos/$id'
 import { Route as LeerIndexRouteImport } from './routes/leer/index'
@@ -102,16 +100,6 @@ const ExploraTemaRoute = ExploraTemaRouteImport.update({
   path: '/explora/$tema',
   getParentRoute: () => rootRouteImport,
 } as any)
-const InteractivoIndexRoute = InteractivoIndexRouteImport.update({
-  id: '/interactivo/',
-  path: '/interactivo/',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const InteractivoIdRoute = InteractivoIdRouteImport.update({
-  id: '/interactivo/$id',
-  path: '/interactivo/$id',
-  getParentRoute: () => rootRouteImport,
-} as any)
 const JuegosIndexRoute = JuegosIndexRouteImport.update({
   id: '/juegos/',
   path: '/juegos/',
@@ -185,14 +173,12 @@ export interface FileRoutesByFullPath {
   '/sobre': typeof SobreRoute
   '/aventuras/$id': typeof AventurasIdRoute
   '/explora/$tema': typeof ExploraTemaRoute
-  '/interactivo/$id': typeof InteractivoIdRoute
   '/juegos/$id': typeof JuegosIdRoute
   '/leer/$id': typeof LeerIdRoute
   '/padres/$slug': typeof PadresSlugRoute
   '/personajes/$slug': typeof PersonajesSlugRoute
   '/aventuras/': typeof AventurasIndexRoute
   '/explora/': typeof ExploraIndexRoute
-  '/interactivo/': typeof InteractivoIndexRoute
   '/juegos/': typeof JuegosIndexRoute
   '/leer/': typeof LeerIndexRoute
   '/padres/': typeof PadresIndexRoute
@@ -214,14 +200,12 @@ export interface FileRoutesByTo {
   '/sobre': typeof SobreRoute
   '/aventuras/$id': typeof AventurasIdRoute
   '/explora/$tema': typeof ExploraTemaRoute
-  '/interactivo/$id': typeof InteractivoIdRoute
   '/juegos/$id': typeof JuegosIdRoute
   '/leer/$id': typeof LeerIdRoute
   '/padres/$slug': typeof PadresSlugRoute
   '/personajes/$slug': typeof PersonajesSlugRoute
   '/aventuras': typeof AventurasIndexRoute
   '/explora': typeof ExploraIndexRoute
-  '/interactivo': typeof InteractivoIndexRoute
   '/juegos': typeof JuegosIndexRoute
   '/leer': typeof LeerIndexRoute
   '/padres': typeof PadresIndexRoute
@@ -244,14 +228,12 @@ export interface FileRoutesById {
   '/sobre': typeof SobreRoute
   '/aventuras/$id': typeof AventurasIdRoute
   '/explora/$tema': typeof ExploraTemaRoute
-  '/interactivo/$id': typeof InteractivoIdRoute
   '/juegos/$id': typeof JuegosIdRoute
   '/leer/$id': typeof LeerIdRoute
   '/padres/$slug': typeof PadresSlugRoute
   '/personajes/$slug': typeof PersonajesSlugRoute
   '/aventuras/': typeof AventurasIndexRoute
   '/explora/': typeof ExploraIndexRoute
-  '/interactivo/': typeof InteractivoIndexRoute
   '/juegos/': typeof JuegosIndexRoute
   '/leer/': typeof LeerIndexRoute
   '/padres/': typeof PadresIndexRoute
@@ -275,14 +257,12 @@ export interface FileRouteTypes {
     | '/sobre'
     | '/aventuras/$id'
     | '/explora/$tema'
-    | '/interactivo/$id'
     | '/juegos/$id'
     | '/leer/$id'
     | '/padres/$slug'
     | '/personajes/$slug'
     | '/aventuras/'
     | '/explora/'
-    | '/interactivo/'
     | '/juegos/'
     | '/leer/'
     | '/padres/'
@@ -304,14 +284,12 @@ export interface FileRouteTypes {
     | '/sobre'
     | '/aventuras/$id'
     | '/explora/$tema'
-    | '/interactivo/$id'
     | '/juegos/$id'
     | '/leer/$id'
     | '/padres/$slug'
     | '/personajes/$slug'
     | '/aventuras'
     | '/explora'
-    | '/interactivo'
     | '/juegos'
     | '/leer'
     | '/padres'
@@ -333,14 +311,12 @@ export interface FileRouteTypes {
     | '/sobre'
     | '/aventuras/$id'
     | '/explora/$tema'
-    | '/interactivo/$id'
     | '/juegos/$id'
     | '/leer/$id'
     | '/padres/$slug'
     | '/personajes/$slug'
     | '/aventuras/'
     | '/explora/'
-    | '/interactivo/'
     | '/juegos/'
     | '/leer/'
     | '/padres/'
@@ -363,14 +339,12 @@ export interface RootRouteChildren {
   SobreRoute: typeof SobreRoute
   AventurasIdRoute: typeof AventurasIdRoute
   ExploraTemaRoute: typeof ExploraTemaRoute
-  InteractivoIdRoute: typeof InteractivoIdRoute
   JuegosIdRoute: typeof JuegosIdRoute
   LeerIdRoute: typeof LeerIdRoute
   PadresSlugRoute: typeof PadresSlugRoute
   PersonajesSlugRoute: typeof PersonajesSlugRoute
   AventurasIndexRoute: typeof AventurasIndexRoute
   ExploraIndexRoute: typeof ExploraIndexRoute
-  InteractivoIndexRoute: typeof InteractivoIndexRoute
   JuegosIndexRoute: typeof JuegosIndexRoute
   LeerIndexRoute: typeof LeerIndexRoute
   PadresIndexRoute: typeof PadresIndexRoute
@@ -471,20 +445,6 @@ declare module '@tanstack/react-router' {
       path: '/explora/$tema'
       fullPath: '/explora/$tema'
       preLoaderRoute: typeof ExploraTemaRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/interactivo/': {
-      id: '/interactivo/'
-      path: '/interactivo'
-      fullPath: '/interactivo/'
-      preLoaderRoute: typeof InteractivoIndexRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/interactivo/$id': {
-      id: '/interactivo/$id'
-      path: '/interactivo/$id'
-      fullPath: '/interactivo/$id'
-      preLoaderRoute: typeof InteractivoIdRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/juegos/': {
@@ -598,14 +558,12 @@ const rootRouteChildren: RootRouteChildren = {
   SobreRoute: SobreRoute,
   AventurasIdRoute: AventurasIdRoute,
   ExploraTemaRoute: ExploraTemaRoute,
-  InteractivoIdRoute: InteractivoIdRoute,
   JuegosIdRoute: JuegosIdRoute,
   LeerIdRoute: LeerIdRoute,
   PadresSlugRoute: PadresSlugRoute,
   PersonajesSlugRoute: PersonajesSlugRoute,
   AventurasIndexRoute: AventurasIndexRoute,
   ExploraIndexRoute: ExploraIndexRoute,
-  InteractivoIndexRoute: InteractivoIndexRoute,
   JuegosIndexRoute: JuegosIndexRoute,
   LeerIndexRoute: LeerIndexRoute,
   PadresIndexRoute: PadresIndexRoute,

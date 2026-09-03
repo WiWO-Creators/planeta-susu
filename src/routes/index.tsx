@@ -9,27 +9,15 @@ export const Route = createFileRoute("/")({ component: Home });
 const delays = [0, 1, 2, 3, 4] as const;
 
 const ROOMS: {
-  to: "/juegos" | "/aventuras" | "/explora" | "/juguetes" | "/interactivo";
+  to: "/juegos" | "/aventuras" | "/explora" | "/juguetes";
   who: CharacterSlug;
   title: string;
   color: string;
-  /** Ocupa el ancho entero. Con cinco salas, la quinta cierra la grilla. */
-  ancha?: boolean;
 }[] = [
   { to: "/juegos", who: "gadu", title: "Jugar", color: "bg-yellow" },
   { to: "/aventuras", who: "margarel", title: "Cuentos", color: "bg-margarel text-cream" },
   { to: "/explora", who: "zizu", title: "Mundo", color: "bg-zizu text-cream" },
   { to: "/juguetes", who: "susu", title: "Radar", color: "bg-susu" },
-  // La sala de lo que llega desde afuera. Cierra la grilla a lo ancho porque
-  // es la quinta de cuatro columnas de a dos, y porque conviene que se lea
-  // como otra cosa: no es material de la casa.
-  {
-    to: "/interactivo",
-    who: "vector",
-    title: "Interactivo",
-    color: "bg-vector text-cream",
-    ancha: true,
-  },
 ];
 
 function Home() {
@@ -47,7 +35,6 @@ function Home() {
                 to={r.to}
                 className={cn(
                   "flex min-h-44 flex-col items-center justify-end overflow-hidden rounded-card border-[3px] border-ink shadow-chunky sm:min-h-56",
-                  r.ancha && "col-span-2 min-h-36 sm:min-h-44",
                   r.color,
                 )}
               >

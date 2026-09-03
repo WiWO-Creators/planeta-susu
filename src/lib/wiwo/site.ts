@@ -41,11 +41,9 @@ export function mediaUrlFor(id: string, origin: string): string {
  * dice en la pista del campo `section`.
  */
 function rutaDe(id: string): string {
-  // Las secciones con página por pieza: el resto del id es el slug con el que
-  // resuelve la ruta del sitio, así que no hay nada que traducir. "interactivo"
-  // está acá porque es donde aterriza todo lo que publica el orquestador, y
-  // cada pieza suya necesita dirección propia para poder enlazarse.
-  for (const seccion of ["aventuras", "leer", "padres", "interactivo"]) {
+  // Las tres secciones con página por pieza: el resto del id es el slug con el
+  // que resuelve la ruta del sitio, así que no hay nada que traducir.
+  for (const seccion of ["aventuras", "leer", "padres"]) {
     if (id.startsWith(`${seccion}-`)) return `/${seccion}/${id.slice(seccion.length + 1)}`;
   }
 

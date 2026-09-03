@@ -1,7 +1,7 @@
 import { WIWO_CONTRACT_VERSION, type WiwoField, type WiwoManifest } from "@wiwo/contract";
 import { canDelete, canWrite } from "@wiwo/contract/server";
 import { BRAND } from "@/data/brand";
-import { KIND_LABEL } from "@/data/catalog";
+import { KIND_LABEL, SECTIONS } from "@/data/catalog";
 import { characters } from "@/data/characters";
 
 /**
@@ -20,15 +20,6 @@ import { characters } from "@/data/characters";
  */
 
 /** Máximos del sitio, con margen sobre lo que ya está publicado. */
-/**
- * La única sección en la que el orquestador puede publicar.
- *
- * Vive acá y no en el catálogo porque no es una propiedad del archivo sino de
- * lo que el sitio ACEPTA: el catálogo describe las siete secciones que el sitio
- * sabe dibujar, y esta constante dice cuál de ellas se ofrece afuera.
- */
-const SECCION_PUBLICABLE = "interactivo";
-
 const LIMITS = {
   title: 120,
   summary: 340,
@@ -80,16 +71,11 @@ export function buildFields(): WiwoField[] {
       label: "Sección",
       type: "enum",
       required: true,
-      // UNA sola opción, y es deliberado: este sitio lo leen niños, así que lo
-      // que llega desde afuera no se mezcla con el material de la casa. Todo lo
-      // publicado aterriza en "Interactivo", que tiene su propia sala y se
-      // anuncia como lo que es. Las otras seis secciones siguen existiendo para
-      // el archivo propio; no se ofrecen al publicar.
-      options: [{ value: SECCION_PUBLICABLE, label: "Interactivo" }],
+      options: SECTIONS.map((section) => ({ value: section.id, label: section.label })),
       // La sección no solo clasifica: es la mitad de la dirección pública. El id
       // de la pieza tiene que empezar por el id de la sección, porque `urlFor`
       // recibe el id a secas y es lo único que le permite saber dónde vive.
-      hint: 'El id de la pieza tiene que empezar por "interactivo-": "interactivo-mi-nota" vive en /interactivo/mi-nota.',
+      hint: "El id de la pieza tiene que empezar por el id de la sección: \"leer-mi-nota\" vive en /leer/mi-nota. Una lección de Explora lleva además su mundo, con doble guion: \"explora-ciencia--cielo-azul\".",
     },
     {
       key: "kicker",
@@ -258,25 +244,71 @@ export function buildManifest(
       // tablas genéricos en ninguna parte. Cada sección tiene sus bloques y una
       // página que solo sabe recorrer los suyos, así que anunciar `paragraph` o
       // `table` dejaría al orquestador escribiendo algo que saldría en blanco.
-      // Solo los bloques que dibuja la sala de Interactivo, que es la unica
-      // seccion publicable. Declarar los de Cuentos, Explora o Misiones seria
-      // ofrecerle al asistente formas que su pieza no va a poder usar, y las
-      // usaria: el vocabulario que se anuncia es el que termina escribiendose.
       blockTypes: [
+        {
+          type: "vineta",
+          label: "Viñeta",
+          hint: "Cuentos. Una página del cuento: `text`, su ilustración en `art`, `bg` con el color del fondo, y `who` con quien habla o `narrator: true` si habla la voz que cuenta.",
+        },
         {
           type: "parrafo",
           label: "Párrafo",
-          hint: "El cuerpo de la pieza. Un párrafo por bloque, con `title` cuando abre un tramo. Se le habla a quien tiene siete años: frases cortas, sin tecnicismos.",
-        },
-        {
-          type: "callout",
-          label: "Recuadro",
-          hint: "Para destacar algo suelto: `text` y `tone` —tip para un truco, wow para un dato que sorprende, care para lo que pide cuidado o compañía de un adulto—.",
+          hint: "Leer. Un párrafo de la lectura, con `title` cuando abre un tramo.",
         },
         {
           type: "para-casa",
           label: "Para casa",
-          hint: "Cierra la pieza con algo para hacer o mirar después, en una frase. Va una sola vez y al final.",
+          hint: "Leer. Cierra la lectura con algo para hacer o mirar después, en una frase.",
+        },
+        {
+          type: "say",
+          label: "Alguien dice",
+          hint: "Explora. Abre la lección: `who` del elenco y `text` con lo que dice, en bocadillo.",
+        },
+        {
+          type: "text",
+          label: "Explicación",
+          hint: "Explora. El bloque que explica, con `title` y `body`.",
+        },
+        {
+          type: "list",
+          label: "Lista",
+          hint: "Explora. `title` e `items`, para lo que se enumera sin orden obligatorio.",
+        },
+        {
+          type: "try",
+          label: "Laboratorio",
+          hint: "Explora. Un experimento en casa: `title` y `steps`, en el orden en que se hacen.",
+        },
+        {
+          type: "callout",
+          label: "Aviso",
+          hint: "Explora. `text` y `tone`: tip para un truco, wow para un dato que sorprende, care para lo que pide cuidado o compañía adulta.",
+        },
+        {
+          type: "seccion",
+          label: "Apartado",
+          hint: "Sala de Grandes. Un apartado de la guía: `title` y `parrafos`.",
+        },
+        {
+          type: "prueben",
+          label: "Prueben esto",
+          hint: "Sala de Grandes. Cierra la guía con lo que se puede probar hoy: `title` y `pasos`.",
+        },
+        {
+          type: "paso",
+          label: "Paso",
+          hint: "Misiones. Un paso de la misión, en `text`. Se dibujan en el orden en que llegan.",
+        },
+        {
+          type: "idea",
+          label: "Idea de fondo",
+          hint: "Misiones. Qué se aprende haciéndola, dicho para el adulto que acompaña.",
+        },
+        {
+          type: "nueva-pregunta",
+          label: "Nueva pregunta",
+          hint: "Club de las Grandes Preguntas. La respuesta termina abriendo otra pregunta: eso es este bloque.",
         },
       ],
     },

@@ -21,14 +21,7 @@ import type { WiwoSiteArticle } from "@wiwo/contract";
 export type Article = WiwoSiteArticle;
 
 /** Qué clase de pieza es. Es el `section` del contrato, no un campo aparte. */
-export type SectionId =
-  | "aventuras"
-  | "leer"
-  | "explora"
-  | "padres"
-  | "misiones"
-  | "preguntas"
-  | "interactivo";
+export type SectionId = "aventuras" | "leer" | "explora" | "padres" | "misiones" | "preguntas";
 
 /** Qué clase de lectura es una pieza de la biblioteca. */
 export type ReadingKind = "ficha" | "rima" | "lab" | "carta";

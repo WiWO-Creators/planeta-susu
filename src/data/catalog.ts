@@ -21,15 +21,7 @@ import { PREGUNTAS } from "./articles/preguntas";
  * Ninguna vista debe leer `extra` por su cuenta.
  */
 
-/**
- * Las clases de pieza del sitio, en el orden en que abren el archivo.
- *
- * Las seis primeras son las escritas por la casa. La ultima, "interactivo", es
- * el unico destino de lo que llega desde afuera: este sitio lo leen ninos, asi
- * que lo publicado por el orquestador no se mezcla con el material propio sino
- * que vive en su propia sala, senalizada como tal. La restriccion la impone el
- * manifest, que ofrece esa unica opcion al publicar.
- */
+/** Las seis clases de pieza publicable, en el orden en que abren el archivo. */
 export const SECTIONS: { id: SectionId; label: string }[] = [
   { id: "aventuras", label: "Cuentos" },
   { id: "leer", label: "Leer" },
@@ -37,7 +29,6 @@ export const SECTIONS: { id: SectionId; label: string }[] = [
   { id: "padres", label: "Sala de Grandes" },
   { id: "misiones", label: "Misiones de 7 minutos" },
   { id: "preguntas", label: "Club de las Grandes Preguntas" },
-  { id: "interactivo", label: "Interactivo" },
 ];
 
 /**

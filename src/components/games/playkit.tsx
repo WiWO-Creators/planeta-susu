@@ -1,6 +1,5 @@
 import { useEffect, useRef, type ReactNode } from "react";
 import { Button } from "@/components/ui/button";
-import { Photo } from "@/components/ui/photo";
 import { characterMap, type CharacterSlug } from "@/data/characters";
 import { cn } from "@/lib/utils";
 
@@ -134,7 +133,7 @@ export function ArcadeStart({
   title,
   how,
   onStart,
-  cover,
+  cover: _cover,
 }: {
   who: CharacterSlug;
   title: string;
@@ -144,23 +143,17 @@ export function ArcadeStart({
 }) {
   const c = characterMap[who];
   return (
-    <div className="flex min-h-[26rem] flex-col items-center justify-center px-3 py-5 text-center">
-      {cover ? (
-        <div className="relative mb-3 w-full max-w-lg overflow-hidden rounded-card border-[3px] border-ink">
-          <Photo src={cover} ratio="video" />
-          <img
-            src={c.portrait}
-            alt=""
-            className="absolute bottom-0 right-2 h-28 w-auto object-contain sm:h-32"
-          />
-        </div>
-      ) : (
-        <img src={c.portrait} alt="" className="h-32 w-auto bob object-contain sm:h-40" />
-      )}
-      <h2 className="mt-3 font-display text-3xl font-semibold sm:text-4xl">{title}</h2>
-      <p className="bubble mt-3 max-w-sm text-lg">{how}</p>
+    <div className="flex min-h-[28rem] flex-col items-center justify-center px-3 py-6 text-center">
+      <img
+        src={c.portrait}
+        alt=""
+        draggable={false}
+        className="h-40 w-auto bob object-contain sm:h-52"
+      />
+      <h2 className="mt-3 font-display text-4xl font-semibold sm:text-5xl">{title}</h2>
+      <p className="bubble mt-4 max-w-md text-left text-xl sm:text-2xl">{how}</p>
       <Button
-        className="mt-6 min-h-16 min-w-48 text-2xl"
+        className="mt-8 min-h-20 min-w-56 text-3xl"
         tone={
           who === "vector"
             ? "vector"
@@ -198,8 +191,8 @@ export function ArcadeHud({
   extra?: ReactNode;
 }) {
   return (
-    <div className="flex items-center justify-between gap-3 rounded-2xl border-[3px] border-ink bg-yellow px-3 py-2 font-display text-lg font-semibold">
-      <span className="tabular-nums">{score} pts</span>
+    <div className="flex items-center justify-between gap-3 rounded-2xl border-[3px] border-ink bg-yellow px-4 py-3 font-display text-xl font-semibold">
+      <span className="tabular-nums">★ {score}</span>
       {typeof lives === "number" ? (
         <span className="flex gap-1" aria-label={`${lives} vidas`}>
           {[0, 1, 2].map((i) => (

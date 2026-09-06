@@ -49,6 +49,24 @@ export const TRASH_ART: Record<string, string> = {
 
 export const PLANET_ART = [ART.planetBlue, ART.planetYellow, ART.planetPurple, ART.planetGreen];
 export const BALLOON_ART = [ART.balloonPink, ART.balloonYellow, ART.balloonGreen, ART.balloonOrange];
+export const GAME_TOY: Record<string, string> = {
+  reciclar: ART.bottle,
+  sumas: ART.planetYellow,
+  codigo: ART.bread,
+  colores: ART.beadPink,
+  emociones: ART.sun,
+  memoria: ART.balloonPink,
+  patrones: ART.beadPurple,
+  simon: ART.beadYellow,
+  sobra: ART.planetGreen,
+  busca: ART.leaves,
+  siluetas: ART.cloud,
+  ciclo: ART.drop,
+  rimas: ART.balloonOrange,
+  contar: ART.planetBlue,
+  receta: ART.tomato,
+};
+
 export const BEAD_ART = [
   { color: "#ffd000", src: ART.beadYellow, name: "sol" },
   { color: "#6c3ce0", src: ART.beadPurple, name: "uva" },

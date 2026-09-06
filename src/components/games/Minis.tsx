@@ -75,7 +75,7 @@ export function MemoryGame() {
               key={`${slug}-${i}`}
               type="button"
               onClick={() => flip(i)}
-              className="group relative aspect-square [perspective:600px]"
+              className="group relative aspect-square min-h-16 [perspective:600px] sm:min-h-24"
               aria-label={show ? c.name : "carta"}
             >
               <span

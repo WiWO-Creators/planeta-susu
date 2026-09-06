@@ -41,6 +41,9 @@ function Aventuras() {
                   <span className="absolute left-2 top-2 grid size-9 place-items-center rounded-full border-[3px] border-ink bg-yellow font-display text-sm font-semibold">
                     {i + 1}
                   </span>
+                  <span className="absolute bottom-2 left-2 rounded-full border-[3px] border-ink bg-yellow px-3 py-1 font-display text-sm font-semibold">
+                    Leer
+                  </span>
                   {done ? (
                     <span className="absolute right-2 top-2 rounded-full border-2 border-ink bg-yellow px-2 py-0.5 font-display text-xs font-semibold">
                       Listo

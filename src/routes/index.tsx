@@ -3,6 +3,9 @@ import { Figure } from "@/components/characters/Figure";
 import { characters, characterMap, type CharacterSlug } from "@/data/characters";
 import { cn } from "@/lib/utils";
 import { QuestBar } from "@/components/play/QuestBar";
+import { games } from "@/data/games";
+import { GAME_TOY } from "@/data/gameArt";
+import { useProgress } from "@/store/progress";
 
 export const Route = createFileRoute("/")({ component: Home });
 
@@ -21,6 +24,7 @@ const ROOMS: {
 ];
 
 function Home() {
+  const completed = useProgress((s) => s.completed);
   return (
     <main className="sky-play min-h-[70vh]">
       <div className="mx-auto max-w-5xl px-4 pb-8 pt-4 sm:px-6">
@@ -51,6 +55,48 @@ function Home() {
             );
           })}
         </div>
+
+        <p className="mt-8 text-center font-display text-xl font-semibold">Empieza aquí</p>
+        <div className="mt-3 grid grid-cols-2 gap-3 sm:grid-cols-4">
+          {games.slice(0, 4).map((g, i) => {
+            const host = characterMap[g.host];
+            const toy = GAME_TOY[g.id];
+            const done = completed.includes(`game:${g.id}`);
+            return (
+              <Link
+                key={g.id}
+                to="/juegos/$id"
+                params={{ id: g.id }}
+                className="overflow-hidden rounded-card border-[3px] border-ink bg-cloud shadow-chunky-sm"
+              >
+                <div
+                  className="relative flex h-28 items-end justify-center sm:h-32"
+                  style={{ background: `${host.color}40` }}
+                >
+                  <span className="absolute left-1.5 top-1.5 grid size-7 place-items-center rounded-full border-2 border-ink bg-yellow font-display text-xs font-semibold">
+                    {i + 1}
+                  </span>
+                  {toy ? (
+                    <img src={toy} alt="" className="pointer-events-none absolute right-1 top-1 h-9 w-9 object-contain" />
+                  ) : null}
+                  <img
+                    src={host.portrait}
+                    alt=""
+                    draggable={false}
+                    className="pointer-events-none h-[90%] w-auto object-contain object-bottom"
+                  />
+                  {done ? (
+                    <span className="absolute bottom-1 left-1 font-display text-sm">★</span>
+                  ) : null}
+                </div>
+                <p className="border-t-[3px] border-ink p-2 text-center font-display text-sm font-semibold leading-tight sm:text-base">
+                  {g.title}
+                </p>
+              </Link>
+            );
+          })}
+        </div>
+
         <p className="mt-8 text-center font-display text-xl font-semibold">Toca un amigo</p>
         <div className="mt-3 flex snap-x gap-3 overflow-x-auto pb-2 sm:grid sm:grid-cols-5 sm:overflow-visible">
           {characters.map((c, i) => (

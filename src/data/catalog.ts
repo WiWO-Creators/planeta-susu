@@ -76,10 +76,14 @@ export function articlesOfSection(list: Article[], id: SectionId): Article[] {
 /**
  * El nombre corto de una pieza dentro de su sección: lo que viaja en la URL.
  *
- * El id lleva la sección adelante (`leer-ficha-gota`) porque es lo único que
- * permite armar la URL pública sabiendo solo el id, que es todo lo que el
- * contrato le pasa a `urlFor`. Las direcciones del sitio no la llevan, así que
- * acá se le saca.
+ * Las piezas del archivo llevan la sección adelante en el id (`leer-ficha-gota`)
+ * y las direcciones del sitio no la llevan, así que acá se le saca. Una pieza
+ * publicada por el orquestador no la lleva —su id sale del título— y entonces el
+ * nombre corto es el id entero.
+ *
+ * Es la MISMA función que usa `lib/wiwo/site.ts` para emitir la dirección de una
+ * pieza y la que usa `getArticleBySlug` para encontrarla: mientras sea una sola,
+ * lo que se anuncia y lo que resuelve no pueden discrepar.
  */
 export function articleSlug(article: Article): string {
   const seccion = article.section?.id ?? "";

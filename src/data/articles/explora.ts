@@ -6,9 +6,10 @@ import type { Article } from "@/data/types";
  * NO hace: no describe los mundos. El mundo (titulo, anfitrion, nota para
  *   adultos) sigue siendo catalogo del sitio y vive en data/topics.ts.
  *
- * Una leccion no tiene pagina propia: se dibuja dentro de su mundo. Por eso el
- * id lleva el mundo adentro (explora-<mundo>--<leccion>): es lo unico que
- * permite armar su URL publica sabiendo solo el id.
+ * Una leccion no tiene pagina propia: se dibuja dentro de su mundo, y el mundo
+ * es el campo `tema`. El id de estas dieciseis lo lleva adentro
+ * (explora-<mundo>--<leccion>) por como se escribieron; no es una regla que
+ * haya que sostener, porque la direccion se arma con la pieza en la mano.
  */
 
 export const LECCIONES: Article[] = [

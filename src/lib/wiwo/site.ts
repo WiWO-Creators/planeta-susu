@@ -1,6 +1,7 @@
 import { createArticleStore, createMediaStore, type WiwoSiteConfig } from "@wiwo/contract/server";
 import { getSql } from "@/lib/db";
-import { ARTICLES } from "@/data/catalog";
+import type { Article } from "@/data/types";
+import { ARTICLES, articleSlug, articleWorld } from "@/data/catalog";
 import { buildFields } from "./manifest";
 
 /**
@@ -26,7 +27,7 @@ export function mediaUrlFor(id: string, origin: string): string {
 }
 
 /**
- * La dirección de una pieza dentro del sitio, deducida de su id.
+ * La dirección de una pieza dentro del sitio.
  *
  * Las seis secciones no se dibujan igual y por eso no comparten un patrón de
  * URL: un cuento y una lectura tienen página propia, una lección vive dentro de
@@ -34,39 +35,54 @@ export function mediaUrlFor(id: string, origin: string): string {
  * todas adentro. La dirección de una pieza es, entonces, la de donde se la puede
  * LEER, que no siempre es una dirección exclusiva suya.
  *
- * Se resuelve sobre el id y no sobre `section` porque el contrato le pasa a
- * `urlFor` el id a secas. Por eso el id de toda pieza empieza por el id de su
- * sección —y el de una lección lleva además su mundo, separado por doble guion—:
- * es lo que vuelve posible ubicarla sin tener la pieza a mano. El manifest lo
- * dice en la pista del campo `section`.
+ * Se resuelve sobre la PIEZA y no sobre su id: la sección es un campo suyo y el
+ * mundo de una lección también. Deducirlo del id obligaba a que el id empezara
+ * por la sección, y esa convención el orquestador no la puede cumplir —propone
+ * el id a partir del título y nada más—, así que todo lo que publicaba caía en
+ * el respaldo y se anunciaba con la dirección de la portada. La pieza estaba en
+ * su sección y se podía leer; lo que estaba mal era la dirección que este sitio
+ * decía de ella.
+ *
+ * El nombre corto sale de `articleSlug`, el mismo que usan las rutas para
+ * BUSCAR la pieza. Al ser la misma función en los dos lados, una dirección
+ * emitida acá no puede no resolver allá.
  */
-function rutaDe(id: string): string {
-  // Las tres secciones con página por pieza: el resto del id es el slug con el
-  // que resuelve la ruta del sitio, así que no hay nada que traducir.
-  for (const seccion of ["aventuras", "leer", "padres"]) {
-    if (id.startsWith(`${seccion}-`)) return `/${seccion}/${id.slice(seccion.length + 1)}`;
+function rutaDe(article: Article): string {
+  const seccion = article.section?.id ?? "";
+  const slug = articleSlug(article);
+
+  // Las tres secciones con página por pieza.
+  if (seccion === "aventuras" || seccion === "leer" || seccion === "padres") {
+    return `/${seccion}/${slug}`;
   }
 
-  // Una lección se dibuja dentro de su mundo y no tiene dirección propia; el
-  // doble guion existe justo para poder cortar el mundo del nombre corto.
-  if (id.startsWith("explora-")) {
-    const [mundo] = id.slice("explora-".length).split("--");
+  // Una lección se dibuja dentro de su mundo y no tiene dirección propia. Sin
+  // mundo declarado no hay página donde se la vea, así que se nombra el índice
+  // de Explora, que es lo que con certeza existe.
+  if (seccion === "explora") {
+    const mundo = articleWorld(article);
     return mundo ? `/explora/${mundo}` : "/explora";
   }
 
-  for (const seccion of ["misiones", "preguntas"]) {
-    if (id.startsWith(`${seccion}-`)) return `/${seccion}`;
-  }
+  // Estas dos son una sola página con todas las piezas adentro.
+  if (seccion === "misiones" || seccion === "preguntas") return `/${seccion}`;
 
-  // Un id que no empieza por ninguna sección no se puede ubicar. Devolver una
-  // dirección inventada daría un enlace roto al orquestador; la portada es lo
-  // único que con certeza existe.
+  // Una pieza sin sección no se puede ubicar. Devolver una dirección inventada
+  // daría un enlace roto al orquestador; la portada es lo único que con certeza
+  // existe.
   return "/";
 }
 
-/** La URL pública de una pieza en este sitio. */
-export function urlFor(id: string, origin: string): string {
-  return new URL(rutaDe(id), origin).toString();
+/**
+ * La URL pública de una pieza en este sitio.
+ *
+ * El identificador llega igual porque así lo pide el contrato —a la mayoría de
+ * los sitios les alcanza con él—, pero acá no se usa: todo lo que hace falta
+ * está en la pieza, y el id de una publicada por el orquestador no dice nada de
+ * dónde vive.
+ */
+export function urlFor(_id: string, origin: string, article: Article): string {
+  return new URL(rutaDe(article), origin).toString();
 }
 
 /**

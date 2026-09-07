@@ -72,10 +72,10 @@ export function buildFields(): WiwoField[] {
       type: "enum",
       required: true,
       options: SECTIONS.map((section) => ({ value: section.id, label: section.label })),
-      // La sección no solo clasifica: es la mitad de la dirección pública. El id
-      // de la pieza tiene que empezar por el id de la sección, porque `urlFor`
-      // recibe el id a secas y es lo único que le permite saber dónde vive.
-      hint: "El id de la pieza tiene que empezar por el id de la sección: \"leer-mi-nota\" vive en /leer/mi-nota. Una lección de Explora lleva además su mundo, con doble guion: \"explora-ciencia--cielo-azul\".",
+      // La sección no solo clasifica: es la mitad de la dirección pública, y de
+      // ella sale también CÓMO se dibuja la pieza. La dirección la arma el sitio
+      // con la pieza en la mano, así que no hay nada que pedirle al id.
+      hint: "Dónde vive la pieza y con qué forma se dibuja. Un cuento, una lectura y una guía tienen página propia; una lección de Explora se dibuja dentro de la página de su mundo, y las misiones y las preguntas van todas juntas en una sola página.",
     },
     {
       key: "kicker",
@@ -146,7 +146,7 @@ export function buildFields(): WiwoField[] {
       // reconoce por este campo: escribir otra cosa la deja fuera de la página
       // aunque la pieza exista. En un cuento el tema es una etiqueta suelta que
       // nadie filtra, así que no puede ser un enum.
-      hint: "En una lección de Explora, el slug del mundo donde se dibuja, el mismo que va en el id: ecologia, ciencia, matematicas, programacion, arte, valores, futuro, orbita. En un cuento, el tema tal como se lee.",
+      hint: "En una lección de Explora, el slug del mundo dentro de cuya página se dibuja: ecologia, ciencia, matematicas, programacion, arte, valores, futuro, orbita. Sin esto la lección existe pero no aparece en ningún mundo. En un cuento, el tema tal como se lee.",
     },
     {
       key: "leccion",

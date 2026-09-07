@@ -11,7 +11,7 @@ npm ci
 npm run dev
 ```
 
-Abre `http://localhost:8087`.
+Abre `http://localhost:8080`.
 
 ## Subir a Vercel
 
